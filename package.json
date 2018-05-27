@@ -1,0 +1,80 @@
+{
+    "name": "sqleton",
+    "productName": "sqleton",
+    "version": "1.0.0-alpha1",
+    "description": "A MySQL client to die for.",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "lint": "eslint src",
+        "vue:dev": "cross-env NODE_ENV=development webpack --watch --progress",
+        "vue:build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    },
+    "keywords": [],
+    "author": "Stefan Pankov",
+    "license": "MIT",
+    "config": {
+        "forge": {
+            "make_targets": {
+                "win32": [
+                    "squirrel"
+                ],
+                "darwin": [
+                    "zip"
+                ],
+                "linux": [
+                    "deb",
+                    "rpm"
+                ]
+            },
+            "electronPackagerConfig": {
+                "packageManager": "yarn"
+            },
+            "electronWinstallerConfig": {
+                "name": "sqleton"
+            },
+            "electronInstallerDebian": {},
+            "electronInstallerRedhat": {},
+            "github_repository": {
+                "owner": "",
+                "name": ""
+            },
+            "windowsStoreConfig": {
+                "packageName": "",
+                "name": "sqleton"
+            }
+        }
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not ie <= 8"
+    ],
+    "dependencies": {
+        "electron-compile": "^6.4.2",
+        "vue": "^2.5.11"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-plugin-transform-async-to-generator": "^6.24.1",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-react": "^6.24.1",
+        "babel-loader": "^7.1.2",
+        "babel-preset-stage-3": "^6.24.1",
+        "cross-env": "^5.0.5",
+        "css-loader": "^0.28.7",
+        "electron-forge": "^5.2.2",
+        "electron-prebuilt-compile": "2.0.2",
+        "eslint": "^3",
+        "eslint-config-airbnb-base": "^12",
+        "eslint-plugin-import": "^2",
+        "eslint-plugin-vue": "^4.3",
+        "file-loader": "^1.1.4",
+        "vue-loader": "^13.0.5",
+        "vue-template-compiler": "^2.4.4",
+        "webpack": "^3.6.0",
+        "webpack-dev-server": "^2.9.1"
+    }
+}
