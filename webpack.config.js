@@ -54,6 +54,7 @@ module.exports = {
   performance: {
     hints: false,
   },
+  target: 'electron-renderer',
   devtool: '#eval-source-map',
 }
 

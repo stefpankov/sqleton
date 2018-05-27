@@ -1,38 +1,53 @@
 <template>
-  <div id="app-container">
-    <Sidebar />
+  <div id="app-container" class="window">
+    <Connect v-if="!is_connected" @connect="is_connected = true" />
+    <DatabaseExplorer v-else :databases="databases" />
   </div>
 </template>
 
 <script>
-import Sidebar from './Layouts/Sidebar'
+import { ipcRenderer } from 'electron'
+import Connect from './Views/CreateAConnection/CreateAConnection'
+import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
 
 export default {
   name: 'App',
 
   components: {
-    Sidebar
+    Connect,
+    DatabaseExplorer
   },
 
   data () {
-    return {}
+    return {
+      is_connected: false,
+      databases: [],
+    }
+  },
+
+  methods: {
+    requestDatabases () {
+      ipcRenderer.send('db-request')
+    }
+  },
+
+  created () {
+    ipcRenderer.on('db-response', (event, dbs) => {
+      this.databases = dbs
+    })
+
+    this.requestDatabases();
   }
 }
 </script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
-
 #app-container {
-  display: flex;
-  height: 100vh;
+  /* display: flex;
+  height: 100vh; */
 }
 </style>
 

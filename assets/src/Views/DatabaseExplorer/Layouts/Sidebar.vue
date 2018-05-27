@@ -1,5 +1,5 @@
 <template>
-  <div id="sidebar">
+  <div class="pane-sm sidebar">
     <div class="sidebar-section">
       <div class="database-selector">
         <select v-model="selected_database">
@@ -8,13 +8,19 @@
         </select>
       </div>
     </div>
+
     <div class="sidebar-section">
-      <h5 class="section-title">Tables</h5>
       <nav class="nav-group">
-        <span class="nav-item">Item</span>
-        <span class="nav-item">Item with more text</span>
-        <span class="nav-item">Item</span>
-        <span class="nav-item">Item with text</span>
+        <h5 class="nav-group-title">Tables</h5>
+        <a class="nav-group-item active">
+          companies
+        </a>
+        <a class="nav-group-item">
+          users
+        </a>
+        <a class="nav-group-item">
+          company_user
+        </a>
       </nav>
     </div>
   </div>
@@ -24,13 +30,12 @@
 export default {
   name: 'Sidebar',
 
+  props: {
+    databases: Array,
+  },
+
   data () {
     return {
-      databases: [
-        'database1',
-        'sqeleton_test',
-        'main_db',
-      ],
       selected_database: null
     }
   }
@@ -40,34 +45,23 @@ export default {
 <style>
 #sidebar {
   max-width: 200px;
+  height: 100%;
 
   background-color: #f5f5f4;
 }
 
 .sidebar-section {
-  padding: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #d6c6d6;
 }
-.section-title {
-  margin: 0px;
+
+.database-selector {
+  padding: 10px 10px 0 10px;
 }
 
 .database-selector select {
   width: 100%;
   background: #ffffff;
   border-radius: 3px;
-}
-
-.nav-group {
-  display: flex;
-  flex-direction: column;
-
-  font-size: 14px;
-}
-.nav-item {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 20px;
-  padding-right: 10px;
 }
 </style>
