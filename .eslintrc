@@ -1,5 +1,7 @@
 {
-  "extends": ["airbnb-base", "plugin:vue/essential"],
+  "extends": [
+    "plugin:vue/essential"
+  ],
   "rules": {
     "import/extensions": 0,
     "import/no-extraneous-dependencies": 0,

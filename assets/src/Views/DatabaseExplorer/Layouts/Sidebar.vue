@@ -1,5 +1,5 @@
 <template>
-  <div class="pane-sm sidebar">
+  <div class="pane pane-sm sidebar">
     <div class="sidebar-section">
       <div class="database-selector">
         <select v-model="selected_database">
@@ -12,14 +12,11 @@
     <div class="sidebar-section">
       <nav class="nav-group">
         <h5 class="nav-group-title">Tables</h5>
-        <a class="nav-group-item active">
-          companies
-        </a>
-        <a class="nav-group-item">
-          users
-        </a>
-        <a class="nav-group-item">
-          company_user
+        <a v-for="table in tables" class="nav-group-item"
+          :class="{ active: table === active_table }"
+          :key="table"
+        >
+          {{ table }}
         </a>
       </nav>
     </div>
@@ -32,11 +29,25 @@ export default {
 
   props: {
     databases: Array,
+    tables: Array,
   },
 
   data () {
     return {
-      selected_database: null
+      selected_database: null,
+      active_table: null
+    }
+  },
+
+  watch: {
+    selected_database: 'requestTables'
+  },
+
+  methods: {
+    requestTables () {
+      if (this.selected_database !== null) {
+        this.$emit('request-tables', this.databases[this.selected_database])
+      }
     }
   }
 }

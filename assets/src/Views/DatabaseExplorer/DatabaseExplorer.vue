@@ -1,7 +1,10 @@
 <template>
   <div id="database-explorer" class="window-content">
     <div class="pane-group">
-      <Sidebar :databases="databases" />
+      <Sidebar
+        v-bind="{ databases, tables }"
+        @request-tables="$listeners['request-tables']"
+      />
       <div class="pane"></div>
     </div>
   </div>
@@ -19,6 +22,7 @@ export default {
 
   props: {
     databases: Array,
+    tables: Array
   },
 }
 </script>

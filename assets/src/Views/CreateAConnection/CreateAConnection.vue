@@ -1,21 +1,33 @@
 <template>
   <div id="create-connection" class="window-content">
-    <form>
+    <form @submit.prevent="connect">
       <div class="form-group">
         <label>Host:</label>
-        <input type="text" class="form-control" placeholder="localhost">
+        <input type="text" class="form-control" placeholder="localhost"
+          v-model="credentials.host"
+        >
       </div>
       <div class="form-group">
         <label>Port:</label>
-        <input type="text" class="form-control" placeholder="3360">
+        <input type="text" class="form-control" placeholder="3306"
+          v-model="credentials.port"
+        >
       </div>
       <div class="form-group">
-        <button type="button"
-          class="btn btn-large btn-positive"
-          @click="connect"
+        <label>Username:</label>
+        <input type="text" class="form-control" placeholder="user"
+          v-model="credentials.user"
         >
-          Connect
-        </button>
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" class="form-control"
+          v-model="credentials.password"
+        >
+      </div>
+
+      <div class="form-group">
+        <input type="submit" class="btn btn-large btn-positive" value="Connect">
       </div>
     </form>
   </div>
@@ -25,9 +37,20 @@
 export default {
   name: 'CreateAConnection',
 
+  data () {
+    return {
+      credentials: {
+        host: 'localhost',
+        port: '3306',
+        user: '',
+        password: ''
+      }
+    }
+  },
+
   methods: {
     connect () {
-      this.$emit('connect')
+      this.$emit('connect', this.credentials)
     }
   }
 }
