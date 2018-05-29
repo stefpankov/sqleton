@@ -1,10 +1,9 @@
-import { app, BrowserWindow, BrowserView, Menu, ipcMain } from 'electron'
-import Connection from './Database/Connection'
+import { app, BrowserWindow, BrowserView, Menu } from 'electron'
+import ReplyProvider from './Rpc/ReplyProvider'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-let connection
 
 const createWindow = () => {
   // Create the browser window.
@@ -59,50 +58,4 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.on('connect-request', async (event, credentials) => {
-  connection = new Connection(credentials)
-
-  let response
-  try {
-    response = await connection.connect()
-  } catch (error) {
-    console.log(error)
-    response = { success: false, message: error.message }
-  }
-
-  event.sender.send('connect-response', response)
-})
-
-ipcMain.on('db-request', async (event) => {
-  let response
-
-  if (connection) {
-    try {
-      response = await connection.databases()
-    } catch (error) {
-      console.log(error)
-      response = { success: false, message: error.sqlMessage }
-    }
-  } else {
-    response = { success: false, message: 'No connection.' }
-  }
-
-  event.sender.send('db-response', response)
-})
-
-ipcMain.on('tables-request', async (event, database) => {
-  let response
-
-  if (connection) {
-    try {
-      response = await connection.tablesForDatabase(database)
-    } catch (error) {
-      console.log(error)
-      response = { success: false, message: error.sqlMessage }
-    }
-  } else {
-    response = { success: false, message: 'No connection.' }
-  }
-
-  event.sender.send('tables-response', response)
-})
+ReplyProvider.registerReplies()
