@@ -10,7 +10,7 @@ const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     title: 'Sqleton',
-    width: 800,
+    width: 1200,
     height: 600,
     icon: `${__dirname}/skeleton128.png`,
   })

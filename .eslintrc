@@ -5,7 +5,6 @@
   "rules": {
     "import/extensions": 0,
     "import/no-extraneous-dependencies": 0,
-    "import/no-unresolved": [2, { "ignore": ["electron"] }],
     "linebreak-style": 0,
     "semi": ["error", "never"],
     "no-unreachable": "error"

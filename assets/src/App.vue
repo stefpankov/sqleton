@@ -1,5 +1,7 @@
 <template>
   <div id="app-container" class="window">
+    <LoadingIndicator v-if="loading" />
+
     <Connect v-if="!is_connected" @connect="requestConnection" />
     <DatabaseExplorer v-else
       v-bind="{ databases, tables }"
@@ -9,14 +11,17 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+import LoadingIndicator from './LoadingIndicator'
 import Connect from './Views/CreateAConnection/CreateAConnection'
 import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
+
+import messageUtils from './message-utils'
 
 export default {
   name: 'App',
 
   components: {
+    LoadingIndicator,
     Connect,
     DatabaseExplorer
   },
@@ -25,49 +30,46 @@ export default {
     return {
       is_connected: false,
       databases: [],
-      tables: []
+      tables: [],
+      loading: false,
+      channels: {
+        'connect-response': this.handleConnection,
+        'db-response': this.handleDatabases,
+        'tables-response': this.handleTables
+      }
     }
   },
 
   methods: {
     requestConnection (data) {
-      ipcRenderer.send('connect-request', data)
-    },
-
-    requestDatabases () {
-      ipcRenderer.send('db-request')
+      messageUtils.request('connect-request', data)
+      this.loading = true
     },
 
     requestTables (database_name) {
-      ipcRenderer.send('tables-request', database_name)
+      messageUtils.request('tables-request', database_name)
+      this.loading = true
+    },
+
+    handleConnection () {
+      this.is_connected = true
+      messageUtils.request('db-request')
+      this.loading = true
+    },
+
+    handleDatabases (response) {
+      this.databases = response.results.map(res => res[response.fields[0].name])
+      this.loading = false
+    },
+
+    handleTables (response) {
+      this.tables = response.results.map(res => res[response.fields[0].name])
+      this.loading = false
     }
   },
 
   created () {
-    ipcRenderer.on('connect-response', (event, response) => {
-      if (response.success) {
-        this.is_connected = true
-        this.requestDatabases()
-      } else {
-        console.log(response.message)
-      }
-    })
-
-    ipcRenderer.on('db-response', (event, response) => {
-      if (response.success) {
-        this.databases = response.results.map(res => res[response.fields[0].name])
-      } else {
-        console.log(response)
-      }
-    })
-
-    ipcRenderer.on('tables-response', (event, response) => {
-      if (response.success) {
-        this.tables = response.results.map(res => res[response.fields[0].name])
-      } else {
-        console.log(response)
-      }
-    })
+    messageUtils.subscribeToChannels(this.channels)
   }
 }
 </script>
@@ -84,9 +86,9 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #757272;
 }
-#app-container {
-  /* display: flex;
-  height: 100vh; */
-}
+/* #app-container {
+  display: flex;
+  height: 100vh;
+} */
 </style>
 
