@@ -2,10 +2,10 @@ const path = require('path')
 const webpack = require('webpack')
 
 module.exports = {
-  entry: './assets/src/app.js',
+  entry: './src/renderer/index.js',
   output: {
-    path: path.resolve(__dirname, './assets/dist'),
-    publicPath: '/assets/dist/',
+    path: path.resolve(__dirname, './src/renderer/dist'),
+    publicPath: '/src/renderer/dist/',
     filename: 'app.build.js',
   },
   module: {
@@ -55,7 +55,7 @@ module.exports = {
     hints: false,
   },
   target: 'electron-renderer',
-  devtool: '#eval-source-map',
+  devtool: 'eval-source-map',
 }
 
 if (process.env.NODE_ENV === 'development') {

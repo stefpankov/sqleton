@@ -3,7 +3,7 @@
     "productName": "sqleton",
     "version": "1.0.0-alpha1",
     "description": "A MySQL client to die for.",
-    "main": "src/index.js",
+    "main": "src/main/index.js",
     "scripts": {
         "start": "electron-forge start",
         "package": "electron-forge package",
