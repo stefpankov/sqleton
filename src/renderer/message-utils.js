@@ -17,9 +17,9 @@ export default {
    * @param {String} channel
    * @param {Function} callback
    */
-  subscribe (event_name, callback) {
-    ipcRenderer.on(event_name, (event, response) => {
-      this.handleResponse(response, callback)
+  subscribe (channel, callback, errorCallback) {
+    ipcRenderer.on(channel, (event, response) => {
+      this.handleResponse(response, callback, errorCallback)
     })
   },
 
@@ -28,14 +28,16 @@ export default {
    *
    * @param {Object} response
    * @param {Function} callback
+   * @param {Function} errorCallback
    * @todo Refactor to use Promises
    */
-  handleResponse (response, callback) {
+  handleResponse (response, callback, errorCallback) {
     if (response.success) {
       callback(response)
     } else {
       // Handle this better
       console.log(response.message)
+      errorCallback(response)
     }
   },
 
@@ -48,9 +50,8 @@ export default {
    * @param {Object} channels
    */
   subscribeToChannels(channels) {
-    Object.keys(channels)
-      .forEach(channel => {
-        this.subscribe(channel, channels[channel])
-      })
+    channels.forEach(channel => {
+      this.subscribe(channel.name, channel.callback, channel.errorCallback)
+    })
   }
 }

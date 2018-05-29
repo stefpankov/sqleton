@@ -32,15 +32,31 @@ export default {
       databases: [],
       tables: [],
       loading: false,
-      channels: {
-        'connect-response': this.handleConnection,
-        'db-response': this.handleDatabases,
-        'tables-response': this.handleTables
-      }
+      channels: [
+        {
+          name: 'connect-response',
+          callback: this.handleConnection,
+          errorCallback: this.handleError
+        },
+        {
+          name: 'db-response',
+          callback: this.handleDatabases,
+          errorCallback: this.handleError
+        },
+        {
+          name: 'tables-response',
+          callback: this.handleTables,
+          errorCallback: this.handleError
+        }
+      ]
     }
   },
 
   methods: {
+    handleError (error) {
+      this.loading = false
+    },
+
     requestConnection (data) {
       messageUtils.request('connect-request', data)
       this.loading = true
