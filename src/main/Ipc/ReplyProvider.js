@@ -19,19 +19,19 @@ let channels = {
       })
   },
 
-  'db-request': (event) => {
+  'databases-request': (event) => {
     if (connection) {
       return connection.databases()
         .then(response => {
-          event.sender.send('db-response', response)
+          event.sender.send('databases-response', response)
         })
         .catch(error => {
           console.log(error)
-          event.sender.send('db-response', { success: false, message: error.sqlMessage })
+          event.sender.send('databases-response', { success: false, message: error.sqlMessage })
         })
     }
 
-    event.sender.send('db-response', noConnectionResponse)
+    event.sender.send('databases-response', noConnectionResponse)
   },
 
   'tables-request': (event, database) => {
@@ -46,7 +46,22 @@ let channels = {
         })
     }
 
-    event.sender.send('db-response', noConnectionResponse)
+    event.sender.send('tables-response', noConnectionResponse)
+  },
+
+  'table-data-request': (event, table) => {
+    if (connection) {
+      return connection.getTableData(table)
+        .then(response => {
+          event.sender.send('table-data-response', response)
+        })
+        .catch(error => {
+          console.log(error)
+          event.sender.send('table-data-response', { success: false, message: error.message })
+        })
+    }
+
+    event.sender.send('table-data-response', noConnectionResponse)
   }
 }
 

@@ -96,4 +96,18 @@ export default class {
     return this.changeDatabase(database)
       .then(() => this.tables())
   }
+
+  getTableData (table, limit = 50, offset = 0) {
+    return new Promise((resolve, reject) => {
+      const query = mysql.format('SELECT * FROM ?? LIMIT ? OFFSET ?', [table, limit, offset])
+
+      this.connection.query(query, function (error, results, fields) {
+        if (error) {
+          reject({ success: false, message: error.sqlMessage })
+        } else {
+          resolve({ success: true, results, fields })
+        }
+      })
+    })
+  }
 }

@@ -6,6 +6,7 @@
     <DatabaseExplorer v-else
       v-bind="{ databases, tables }"
       @request-tables="requestTables"
+      @request-table-data="requestTableData"
     />
   </div>
 </template>
@@ -40,13 +41,22 @@ export default {
           errorCallback: this.handleError
         },
         {
-          name: 'db-response',
+          name: 'databases-response',
           callback: this.handleDatabases,
           errorCallback: this.handleError
         },
         {
           name: 'tables-response',
           callback: this.handleTables,
+          errorCallback: this.handleError
+        },
+        {
+          name: 'table-data-response',
+          callback: this.handleTableData,
+          errorCallback: this.handleError
+        },
+        {
+          name: 'error',
           errorCallback: this.handleError
         }
       ]
@@ -77,9 +87,14 @@ export default {
       this.loading = true
     },
 
+    requestTableData (table_name) {
+      requestUtils.request('table-data-request', table_name)
+      this.loading = true
+    },
+
     handleConnection () {
       this.is_connected = true
-      requestUtils.request('db-request')
+      requestUtils.request('databases-request')
       this.loading = true
     },
 
@@ -90,6 +105,11 @@ export default {
 
     handleTables (response) {
       this.tables = response.results.map(res => res[response.fields[0].name])
+      this.loading = false
+    },
+
+    handleTableData (response) {
+      console.log(response)
       this.loading = false
     }
   },

@@ -4,6 +4,7 @@
       <Sidebar
         v-bind="{ databases, tables }"
         @request-tables="$listeners['request-tables']"
+        @request-table-data="$listeners['request-table-data']"
       />
       <div class="pane"></div>
     </div>

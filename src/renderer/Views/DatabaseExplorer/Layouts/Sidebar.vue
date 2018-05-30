@@ -15,6 +15,7 @@
         <a v-for="table in tables" class="nav-group-item"
           :class="{ active: table === active_table }"
           :key="table"
+          @click="selectTable(table)"
         >
           {{ table }}
         </a>
@@ -48,6 +49,11 @@ export default {
       if (this.selected_database !== null) {
         this.$emit('request-tables', this.databases[this.selected_database])
       }
+    },
+
+    selectTable (table) {
+      this.active_table = table
+      this.$emit('request-table-data', table)
     }
   }
 }
