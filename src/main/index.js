@@ -1,7 +1,7 @@
 import path from 'path'
 import { formatUrl } from 'url'
 import { app, BrowserWindow, Menu } from 'electron'
-import ReplyProvider from './Rpc/ReplyProvider'
+import ReplyProvider from './Ipc/ReplyProvider'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

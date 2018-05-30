@@ -11,11 +11,12 @@
 </template>
 
 <script>
+import swal from 'sweetalert'
 import LoadingIndicator from './LoadingIndicator'
 import Connect from './Views/CreateAConnection/CreateAConnection'
 import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
 
-import messageUtils from './message-utils'
+import requestUtils from './Ipc/request-utils'
 
 export default {
   name: 'App',
@@ -53,23 +54,32 @@ export default {
   },
 
   methods: {
-    handleError () {
+    errorModal (error) {
+      swal({
+        title: 'Error',
+        text: error.message,
+        button: { text: 'Close', className: 'btn btn-primary' }
+      })
+    },
+
+    handleError (error) {
       this.loading = false
+      this.errorModal(error)
     },
 
     requestConnection (data) {
-      messageUtils.request('connect-request', data)
+      requestUtils.request('connect-request', data)
       this.loading = true
     },
 
     requestTables (database_name) {
-      messageUtils.request('tables-request', database_name)
+      requestUtils.request('tables-request', database_name)
       this.loading = true
     },
 
     handleConnection () {
       this.is_connected = true
-      messageUtils.request('db-request')
+      requestUtils.request('db-request')
       this.loading = true
     },
 
@@ -85,7 +95,7 @@ export default {
   },
 
   created () {
-    messageUtils.subscribeToChannels(this.channels)
+    requestUtils.subscribeToChannels(this.channels)
   }
 }
 </script>
@@ -108,5 +118,36 @@ body {
   display: flex;
   height: 100vh;
 } */
+
+.swal-modal .swal-title {
+  border-bottom: 1px solid #c2c0c2;
+  min-height: 22px;
+  box-shadow: inset 0 1px 0 #f5f4f5;
+  background-color: #e8e6e8;
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#e8e6e8),color-stop(100%,#d1cfd1));
+  background-image: -webkit-linear-gradient(top,#e8e6e8 0,#d1cfd1 100%);
+  background-image: linear-gradient(to bottom,#e8e6e8 0,#d1cfd1 100%);
+
+  margin: 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 30px;
+  font-weight: normal;
+  padding: 5px;
+}
+
+.swal-footer {
+  border-top: 1px solid #c2c0c2;
+  min-height: 22px;
+  box-shadow: inset 0 1px 0 #f5f4f5;
+  background-color: #e8e6e8;
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#e8e6e8),color-stop(100%,#d1cfd1));
+  background-image: -webkit-linear-gradient(top,#e8e6e8 0,#d1cfd1 100%);
+  background-image: linear-gradient(to bottom,#e8e6e8 0,#d1cfd1 100%);
+
+  padding: 0;
+  margin-top: 30px;
+}
 </style>
 

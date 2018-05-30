@@ -29,14 +29,11 @@ export default {
    * @param {Object} response
    * @param {Function} callback
    * @param {Function} errorCallback
-   * @todo Refactor to use Promises
    */
   handleResponse (response, callback, errorCallback) {
     if (response.success) {
       callback(response)
     } else {
-      // Handle this better
-      console.log(response.message)
       errorCallback(response)
     }
   },
