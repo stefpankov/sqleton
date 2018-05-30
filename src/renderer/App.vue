@@ -4,7 +4,7 @@
 
     <Connect v-if="!is_connected" @connect="requestConnection" />
     <DatabaseExplorer v-else
-      v-bind="{ databases, tables }"
+      v-bind="{ databases, tables, fields, results: table_data_results }"
       @request-tables="requestTables"
       @request-table-data="requestTableData"
     />
@@ -33,6 +33,8 @@ export default {
       is_connected: false,
       databases: [],
       tables: [],
+      fields: [],
+      table_data_results: [],
       loading: false,
       channels: [
         {
@@ -109,7 +111,9 @@ export default {
     },
 
     handleTableData (response) {
-      console.log(response)
+      this.fields = response.fields
+      this.table_data_results = response.results
+
       this.loading = false
     }
   },
@@ -128,7 +132,7 @@ body {
 }
 ::-webkit-scrollbar {
   width: 5px;
-  height: 8px;
+  height: 5px;
   background: #aaaaaa
 }
 ::-webkit-scrollbar-thumb {

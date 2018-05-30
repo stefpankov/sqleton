@@ -6,24 +6,28 @@
         @request-tables="$listeners['request-tables']"
         @request-table-data="$listeners['request-table-data']"
       />
-      <div class="pane"></div>
+      <Results v-bind="{ fields, results }" />
     </div>
   </div>
 </template>
 
 <script>
 import Sidebar from './Layouts/Sidebar'
+import Results from './Layouts/Results'
 
 export default {
   name: 'DatabaseExplorer',
 
   components: {
-    Sidebar
+    Sidebar,
+    Results
   },
 
   props: {
     databases: Array,
-    tables: Array
-  },
+    tables: Array,
+    fields: Array,
+    results: Array
+  }
 }
 </script>
