@@ -1,5 +1,9 @@
-import { app, BrowserWindow, BrowserView, Menu } from 'electron'
+import path from 'path'
+import { formatUrl } from 'url'
+import { app, BrowserWindow, Menu } from 'electron'
 import ReplyProvider from './Rpc/ReplyProvider'
+
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -11,14 +15,24 @@ const createWindow = () => {
     title: 'Sqleton',
     width: 1200,
     height: 600,
-    icon: `${__dirname}/../../static/skeleton128.png`,
+    icon: path.join(__static, '/skeleton128.png'),
   })
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/../index.html`)
-
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if (isDevelopment) {
+    mainWindow.webContents.openDevTools()
+  }
+
+  // and load the index.html of the app.
+  if (isDevelopment) {
+    mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
+  } else {
+    mainWindow.loadURL(formatUrl({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file',
+      slashes: true
+    }))
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -30,8 +44,6 @@ const createWindow = () => {
 
   // Remove application menu
   Menu.setApplicationMenu(null)
-
-  BrowserWindow.addDevToolsExtension('/home/stefan/.config/google-chrome/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/4.1.4_0')
 }
 
 // This method will be called when Electron has finished

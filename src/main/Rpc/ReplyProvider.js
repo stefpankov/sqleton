@@ -6,49 +6,47 @@ const noConnectionResponse = { success: false, message: 'No connection.' }
 let connection
 
 let channels = {
-  'connect-request': async (event, credentials) => {
+  'connect-request': (event, credentials) => {
     connection = new Connection(credentials)
 
-    let response
-    try {
-      response = await connection.connect()
-    } catch (error) {
-      console.log(error)
-      response = { success: false, message: error.message }
-    }
-
-    event.sender.send('connect-response', response)
+    connection.connect()
+      .then(response => {
+        event.sender.send('connect-response', response)
+      })
+      .catch(error => {
+        console.log(error)
+        event.sender.send('connect-response', { success: false, message: error.message })
+      })
   },
 
-  'db-request': async (event) => {
-    // Defensively set the no connection response if the next condition fails
-    let response = noConnectionResponse
-
+  'db-request': (event) => {
     if (connection) {
-      try {
-        response = await connection.databases()
-      } catch (error) {
-        console.log(error)
-        response = { success: false, message: error.sqlMessage }
-      }
+      return connection.databases()
+        .then(response => {
+          event.sender.send('db-response', response)
+        })
+        .catch(error => {
+          console.log(error)
+          event.sender.send('db-response', { success: false, message: error.sqlMessage })
+        })
     }
 
-    event.sender.send('db-response', response)
+    event.sender.send('db-response', noConnectionResponse)
   },
 
-  'tables-request': async (event, database) => {
-    let response = noConnectionResponse
-
+  'tables-request': (event, database) => {
     if (connection) {
-      try {
-        response = await connection.tablesForDatabase(database)
-      } catch (error) {
-        console.log(error)
-        response = { success: false, message: error.sqlMessage }
-      }
+      return connection.tablesForDatabase(database)
+        .then(response => {
+          event.sender.send('tables-response', response)
+        })
+        .catch(error => {
+          console.log(error)
+          event.sender.send('tables-response', { success: false, message: error.sqlMessage })
+        })
     }
 
-    event.sender.send('tables-response', response)
+    event.sender.send('db-response', noConnectionResponse)
   }
 }
 

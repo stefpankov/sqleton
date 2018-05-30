@@ -53,7 +53,7 @@ export default {
   },
 
   methods: {
-    handleError (error) {
+    handleError () {
       this.loading = false
     },
 
@@ -91,6 +91,8 @@ export default {
 </script>
 
 <style>
+@import "../../static/css/photon.min.css";
+
 body {
   font-family: 'Roboto', sans-serif;
 }

@@ -6,6 +6,12 @@ export default class {
     this.connection = mysql.createConnection(credentials)
   }
 
+  /**
+   * Connect to a database by using a previously created connection.
+   * Used as a handshake to check connectivity.
+   *
+   * @returns {Promise}
+   */
   connect () {
     return new Promise((resolve, reject) => {
       this.connection.connect(function (error) {
@@ -28,11 +34,11 @@ export default class {
     return null
   }
 
-  tablesForDatabase (database) {
-    return this.changeDatabase(database)
-      .then(() => this.tables())
-  }
-
+  /**
+   * Get all the databases for the connection.
+   *
+   * @returns {Promise}
+   */
   databases () {
     return new Promise((resolve, reject) => {
       this.connection.query('SHOW DATABASES', function (error, results, fields) {
@@ -45,6 +51,11 @@ export default class {
     })
   }
 
+  /**
+   * Get all the tables for the current database.
+   *
+   * @returns {Promise}
+   */
   tables () {
     return new Promise((resolve, reject) => {
       this.connection.query('SHOW TABLES', function (error, results, fields) {
@@ -57,6 +68,12 @@ export default class {
     })
   }
 
+  /**
+   * Change the database for the current connection.
+   *
+   * @param {String} database Database name
+   * @returns {Promise}
+   */
   changeDatabase (database) {
     return new Promise((resolve, reject) => {
       this.connection.changeUser({ database }, function (error) {
@@ -67,5 +84,16 @@ export default class {
         }
       })
     })
+  }
+
+  /**
+   * Change to the given database and get all it's tables.
+   *
+   * @param {String} database Database name
+   * @returns {Promise}
+   */
+  tablesForDatabase (database) {
+    return this.changeDatabase(database)
+      .then(() => this.tables())
   }
 }

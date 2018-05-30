@@ -1,12 +1,25 @@
 {
   "extends": [
+    "eslint:recommended",
     "plugin:vue/essential"
   ],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "__static": true
+  },
   "rules": {
     "import/extensions": 0,
     "import/no-extraneous-dependencies": 0,
     "linebreak-style": 0,
     "semi": ["error", "never"],
-    "no-unreachable": "error"
+    "no-unreachable": "error",
+    "no-console": "off"
   }
 }
