@@ -12,38 +12,6 @@
     "keywords": [],
     "author": "Stefan Pankov",
     "license": "MIT",
-    "config": {
-        "forge": {
-            "make_targets": {
-                "win32": [
-                    "squirrel"
-                ],
-                "darwin": [
-                    "zip"
-                ],
-                "linux": [
-                    "deb",
-                    "rpm"
-                ]
-            },
-            "electronPackagerConfig": {
-                "packageManager": "yarn"
-            },
-            "electronWinstallerConfig": {
-                "name": "sqleton"
-            },
-            "electronInstallerDebian": {},
-            "electronInstallerRedhat": {},
-            "github_repository": {
-                "owner": "",
-                "name": ""
-            },
-            "windowsStoreConfig": {
-                "packageName": "",
-                "name": "sqleton"
-            }
-        }
-    },
     "browserslist": [
         "> 1%",
         "last 2 versions",
