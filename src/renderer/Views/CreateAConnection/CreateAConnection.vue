@@ -27,6 +27,13 @@
       </div>
 
       <div class="form-group">
+        <label>Database (optional):</label>
+        <input type="text" class="form-control"
+          v-model="credentials.database"
+        >
+      </div>
+
+      <div class="form-group">
         <input type="submit" class="btn btn-large btn-positive" value="Connect">
       </div>
     </form>
@@ -43,7 +50,8 @@ export default {
         host: 'localhost',
         port: '3306',
         user: '',
-        password: ''
+        password: '',
+        database: ''
       }
     }
   },

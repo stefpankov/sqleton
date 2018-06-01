@@ -2,6 +2,7 @@ import mysql from 'mysql'
 
 export default class {
   constructor (credentials) {
+    this.database = credentials.database
     this.credentials = credentials
     this.connection = mysql.createConnection(credentials)
   }
@@ -16,22 +17,42 @@ export default class {
     return new Promise((resolve, reject) => {
       this.connection.connect(function (error) {
           if (error) {
-            reject({
-              success: false,
-              message: error.message,
-            })
+            reject({ success: false, message: error.message, })
           } else {
-            resolve({
-              success: true,
-              message: 'Successfully connected.',
-            })
+            resolve({ success: true, message: 'Successfully connected.', })
           }
       })
     })
   }
 
-  query () {
-    return null
+  disconnect () {
+    return new Promise((resolve, reject) => {
+      this.connection.end(function (error) {
+        if (error) {
+          reject({ success: false, message: error.message })
+        } else {
+          resolve({ success: true, message: 'Successfully disconnected.' })
+        }
+      })
+    })
+  }
+
+  /**
+   * Execute a prepared query.
+   *
+   * @param {String} query Prepared query
+   * @returns {Promise}
+   */
+  executeQuery (query) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(query, function (error, results, fields) {
+        if (error) {
+          reject({ success: false, message: error.sqlMessage })
+        } else {
+          resolve({ success: true, results, fields })
+        }
+      })
+    })
   }
 
   /**
@@ -40,15 +61,7 @@ export default class {
    * @returns {Promise}
    */
   databases () {
-    return new Promise((resolve, reject) => {
-      this.connection.query('SHOW DATABASES', function (error, results, fields) {
-        if (error) {
-          reject({ success: false, message: error.sqlMessage })
-        } else {
-          resolve({ success: true, results, fields })
-        }
-      })
-    })
+    return this.executeQuery('SHOW DATABASES')
   }
 
   /**
@@ -57,15 +70,7 @@ export default class {
    * @returns {Promise}
    */
   tables () {
-    return new Promise((resolve, reject) => {
-      this.connection.query('SHOW TABLES', function (error, results, fields) {
-        if (error) {
-          reject({ success: false, message: error.sqlMessage })
-        } else {
-          resolve({ success: true, results, fields })
-        }
-      })
-    })
+    return this.executeQuery('SHOW TABLES')
   }
 
   /**
@@ -97,17 +102,31 @@ export default class {
       .then(() => this.tables())
   }
 
+  /**
+   * Perform a select query for a table.
+   *
+   * @param {String} table Table name
+   * @param {Number} limit
+   * @param {Number} offset
+   *
+   * @returns {Promise}
+   */
   getTableData (table, limit = 50, offset = 0) {
-    return new Promise((resolve, reject) => {
-      const query = mysql.format('SELECT * FROM ?? LIMIT ? OFFSET ?', [table, limit, offset])
+    const query = mysql.format('SELECT * FROM ?? LIMIT ? OFFSET ?', [table, limit, offset])
 
-      this.connection.query(query, function (error, results, fields) {
-        if (error) {
-          reject({ success: false, message: error.sqlMessage })
-        } else {
-          resolve({ success: true, results, fields })
-        }
-      })
-    })
+    return this.executeQuery(query)
+  }
+
+  /**
+   * Perform a describe query for a table.
+   *
+   * @param {String} table Table name
+   *
+   * @returns {Promise}
+   */
+  describeTable (table) {
+    const query = mysql.format('DESCRIBE ??', [table])
+
+    return this.executeQuery(query)
   }
 }

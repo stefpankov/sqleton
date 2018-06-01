@@ -2,11 +2,21 @@
   <div id="app-container" class="window">
     <LoadingIndicator v-if="loading" />
 
-    <Connect v-if="!is_connected" @connect="requestConnection" />
+    <Toolbar v-show="is_connected"
+      @back="request('disconnect-request')"
+      @refresh="requestTableData(selected_table)"
+    />
+
+    <Connect v-if="!is_connected" @connect="request('connect-request', $event)" />
     <DatabaseExplorer v-else
-      v-bind="{ databases, tables, fields, results: table_data_results }"
-      @request-tables="requestTables"
+      :databases="databases"
+      :tables="tables"
+      :fields="table_data_fields"
+      :results="table_data_results"
+      :results-type="results_type"
+      @request-tables="request('tables-request', $event)"
       @request-table-data="requestTableData"
+      @request-describe-table="request('describe-table-request', selected_table)"
     />
   </div>
 </template>
@@ -14,10 +24,12 @@
 <script>
 import swal from 'sweetalert'
 import LoadingIndicator from './LoadingIndicator'
+import Toolbar from './Toolbar'
 import Connect from './Views/CreateAConnection/CreateAConnection'
 import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
 
 import requestUtils from './Ipc/request-utils'
+import channels from './Ipc/channels'
 
 export default {
   name: 'App',
@@ -25,47 +37,36 @@ export default {
   components: {
     LoadingIndicator,
     Connect,
-    DatabaseExplorer
+    DatabaseExplorer,
+    Toolbar
   },
+
+  mixins: [
+    channels
+  ],
 
   data () {
     return {
       is_connected: false,
       databases: [],
       tables: [],
-      fields: [],
+      selected_table: '',
+      results_type: 'table_data',
+      table_data_fields: [],
       table_data_results: [],
-      loading: false,
-      channels: [
-        {
-          name: 'connect-response',
-          callback: this.handleConnection,
-          errorCallback: this.handleError
-        },
-        {
-          name: 'databases-response',
-          callback: this.handleDatabases,
-          errorCallback: this.handleError
-        },
-        {
-          name: 'tables-response',
-          callback: this.handleTables,
-          errorCallback: this.handleError
-        },
-        {
-          name: 'table-data-response',
-          callback: this.handleTableData,
-          errorCallback: this.handleError
-        },
-        {
-          name: 'error',
-          errorCallback: this.handleError
-        }
-      ]
+      loading: false
     }
   },
 
   methods: {
+    resetState () {
+      this.databases = []
+      this.tables = []
+      this.selected_table = ''
+      this.table_data_fields = []
+      this.table_data_results = []
+    },
+
     errorModal (error) {
       swal({
         title: 'Error',
@@ -79,17 +80,18 @@ export default {
       this.errorModal(error)
     },
 
-    requestConnection (data) {
-      requestUtils.request('connect-request', data)
-      this.loading = true
-    },
-
-    requestTables (database_name) {
-      requestUtils.request('tables-request', database_name)
+    request (channel, payload) {
+      requestUtils.request(channel, payload)
       this.loading = true
     },
 
     requestTableData (table_name) {
+      if (table_name) {
+        this.selected_table = table_name
+      } else {
+        table_name = this.selected_table
+      }
+
       requestUtils.request('table-data-request', table_name)
       this.loading = true
     },
@@ -100,18 +102,39 @@ export default {
       this.loading = true
     },
 
+    handleDisconnect () {
+      this.is_connected = false
+      this.resetState()
+      this.loading = false
+    },
+
     handleDatabases (response) {
+      this.resetState()
       this.databases = response.results.map(res => res[response.fields[0].name])
       this.loading = false
     },
 
     handleTables (response) {
+      this.selected_table = ''
+      this.table_data_fields = []
+      this.table_data_results = []
+      this.results_type = 'table_data'
+
       this.tables = response.results.map(res => res[response.fields[0].name])
       this.loading = false
     },
 
+    handleDescribeTable (response) {
+      this.results_type = 'describe_table'
+      this.table_data_fields = response.fields
+      this.table_data_results = response.results
+
+      this.loading = false
+    },
+
     handleTableData (response) {
-      this.fields = response.fields
+      this.results_type = 'table_data'
+      this.table_data_fields = response.fields
       this.table_data_results = response.results
 
       this.loading = false

@@ -20,6 +20,7 @@ const createWindow = () => {
 
   // Open the DevTools.
   if (isDevelopment) {
+    require('devtron').install()
     mainWindow.webContents.openDevTools()
   }
 
@@ -66,6 +67,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+process.on('uncaughtException', function (error) {
+  console.log(error)
 })
 
 // In this file you can include the rest of your app's specific main process

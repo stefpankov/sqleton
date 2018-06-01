@@ -15,8 +15,23 @@ let channels = {
       })
       .catch(error => {
         console.log(error)
-        event.sender.send('connect-response', { success: false, message: error.message })
+        event.sender.send('connect-response', error)
       })
+  },
+
+  'disconnect-request': (event) => {
+    if (connection) {
+      return connection.disconnect()
+        .then(response => {
+          event.sender.send('disconnect-response', response)
+        })
+        .catch(error => {
+          console.log(error)
+          event.sender.send('disconnect-response', error)
+        })
+    }
+
+    event.sender.send('disconnect-response', noConnectionResponse)
   },
 
   'databases-request': (event) => {
@@ -27,7 +42,7 @@ let channels = {
         })
         .catch(error => {
           console.log(error)
-          event.sender.send('databases-response', { success: false, message: error.sqlMessage })
+          event.sender.send('databases-response', error)
         })
     }
 
@@ -42,7 +57,7 @@ let channels = {
         })
         .catch(error => {
           console.log(error)
-          event.sender.send('tables-response', { success: false, message: error.sqlMessage })
+          event.sender.send('tables-response', error)
         })
     }
 
@@ -57,11 +72,26 @@ let channels = {
         })
         .catch(error => {
           console.log(error)
-          event.sender.send('table-data-response', { success: false, message: error.message })
+          event.sender.send('table-data-response', error)
         })
     }
 
     event.sender.send('table-data-response', noConnectionResponse)
+  },
+
+  'describe-table-request': (event, table) => {
+    if (connection) {
+      return connection.describeTable(table)
+        .then(response => {
+          event.sender.send('describe-table-response', response)
+        })
+        .catch(error => {
+          console.log(error)
+          event.sender.send('describe-table-response', error)
+        })
+    }
+
+    event.sender.send('describe-table-response', noConnectionResponse)
   }
 }
 
