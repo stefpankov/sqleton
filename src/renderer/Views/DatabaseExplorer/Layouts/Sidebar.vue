@@ -10,11 +10,19 @@
     </div>
 
     <div class="sidebar-section">
+      <div class="table-filter">
+        <h5 class="nav-group-title">Filter tables by name</h5>
+        <input type="text" v-model="table_filter" class="form-control" placeholder="Table name...">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
       <nav class="nav-group">
         <h5 class="nav-group-title">Tables</h5>
-        <a v-for="table in tables" class="nav-group-item"
+        <a v-for="table in filtered_tables" class="nav-group-item"
           :class="{ active: table === active_table }"
           :key="table"
+          :title="table"
           @click="selectTable(table)"
         >
           {{ table }}
@@ -36,12 +44,23 @@ export default {
   data () {
     return {
       selected_database: null,
-      active_table: null
+      active_table: null,
+      table_filter: ''
     }
   },
 
   watch: {
     selected_database: 'requestTables'
+  },
+
+  computed: {
+    filtered_tables () {
+      if (this.table_filter) {
+        return this.tables.filter(table => table.includes(this.table_filter))
+      }
+
+      return this.tables
+    }
   },
 
   methods: {
@@ -80,5 +99,13 @@ export default {
   width: 100%;
   background: #ffffff;
   border-radius: 3px;
+}
+
+.table-filter {
+  padding: 10px 10px 0 10px;
+}
+.table-filter .nav-group-title {
+  padding: 0;
+  margin-bottom: 5px;
 }
 </style>
