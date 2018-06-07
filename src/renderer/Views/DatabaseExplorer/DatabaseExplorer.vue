@@ -5,38 +5,38 @@
         v-bind="{ databases, tables }"
         @request-tables="$listeners['request-tables']"
         @request-table-data="$listeners['request-table-data']"
+        @request-describe-table="$listeners['request-describe-table']"
       />
 
       <div class="pane">
-        <div class="tab-group" v-if="fields.length > 0">
+        <div class="tab-group" v-if="queryResults.length > 0">
           <div class="tab-item"
-            :class="{ active: resultsType === 'table_data'}"
-            @click="requestTableData"
+            :class="{ active: index === show_tab }"
+            v-for="(query, index) in queryResults"
+            :key="index + query.table"
+            @click="showTab(index)"
           >
-            Select data
-          </div>
-          <div class="tab-item"
-            :class="{ active: resultsType === 'describe_table'}"
-            @click="requestDescribeTable"
-          >
-            Table structure
-          </div>
-          <div v-show="false" class="tab-item">
-            Foreign keys
-          </div>
-          <div v-show="false" class="tab-item">
-            New item
+            <span class="icon icon-cancel icon-close-tab" @click.stop="closeTab(index)"></span>
+            {{ query.type }} {{ query.table }}
           </div>
         </div>
-        <Results v-bind="{ fields, results }" />
+
+        <div class="results-content">
+          <Results v-if="queryResults.length > 0"
+            v-bind="{
+              fields: queryResults[show_tab].fields,
+              results: queryResults[show_tab].results
+            }"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Sidebar from './Layouts/Sidebar'
-import Results from './Layouts/Results'
+import Sidebar from './Sidebar'
+import Results from './Results'
 
 export default {
   name: 'DatabaseExplorer',
@@ -49,27 +49,30 @@ export default {
   props: {
     databases: Array,
     tables: Array,
-    fields: Array,
-    results: Array,
-    resultsType: {
-      type: String,
-      validator: function (value) {
-        return ['table_data', 'describe_table'].indexOf(value) > -1
-      }
+    queryResults: Array
+  },
+
+  data () {
+    return {
+      show_tab: 0
     }
   },
 
   methods: {
-    requestTableData () {
-      if (this.resultsType !== 'table_data') {
-        this.$emit('request-table-data')
-      }
+    showTab (index) {
+      this.show_tab = index
     },
 
-    requestDescribeTable () {
-      if (this.resultsType !== 'describe_table') {
-        this.$emit('request-describe-table')
+    closeTab (index) {
+      if (this.show_tab === index) {
+        this.show_tab = index > 0 ? index - 1 : 0
       }
+
+      this.$emit('remove-query', index)
+    },
+
+    requestTableData () {
+      this.$emit('request-table-data')
     }
   }
 }

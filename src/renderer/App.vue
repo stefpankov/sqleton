@@ -7,25 +7,28 @@
       @refresh="requestTableData(selected_table)"
     />
 
-    <Connect v-if="!is_connected" @connect="request('connect-request', $event)" />
+    <CreateConnection
+      v-if="!is_connected"
+      @connect="request('connect-request', $event)"
+    />
+
     <DatabaseExplorer v-else
       :databases="databases"
       :tables="tables"
-      :fields="table_data_fields"
-      :results="table_data_results"
-      :results-type="results_type"
+      :query-results="query_results"
       @request-tables="request('tables-request', $event)"
       @request-table-data="requestTableData"
-      @request-describe-table="request('describe-table-request', selected_table)"
+      @request-describe-table="requestDescribeTable"
+      @remove-query="removeQueryResult"
     />
   </div>
 </template>
 
 <script>
 import swal from 'sweetalert'
-import LoadingIndicator from './LoadingIndicator'
-import Toolbar from './Toolbar'
-import Connect from './Views/CreateAConnection/CreateAConnection'
+import LoadingIndicator from './Components/LoadingIndicator'
+import Toolbar from './Components/Toolbar'
+import CreateConnection from './Views/CreateConnection/CreateConnection'
 import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
 
 import requestUtils from './Ipc/request-utils'
@@ -36,7 +39,7 @@ export default {
 
   components: {
     LoadingIndicator,
-    Connect,
+    CreateConnection,
     DatabaseExplorer,
     Toolbar
   },
@@ -51,9 +54,7 @@ export default {
       databases: [],
       tables: [],
       selected_table: '',
-      results_type: 'table_data',
-      table_data_fields: [],
-      table_data_results: [],
+      query_results: [],
       loading: false
     }
   },
@@ -63,10 +64,38 @@ export default {
       this.databases = []
       this.tables = []
       this.selected_table = ''
-      this.table_data_fields = []
-      this.table_data_results = []
+      this.query_results = []
     },
 
+    /**
+     * Remove a query result by given index.
+     *
+     * @param {Number} index
+     */
+    removeQueryResult (index) {
+      this.query_results.splice(index, 1)
+    },
+
+    /**
+     * Check whether table already has results for a specific type of query.
+     *
+     * @param {String} query_type
+     * @param {String} table_name
+     *
+     * @returns {Boolean}
+     */
+    queryResultExists (query_type, table_name) {
+      return this.query_results
+        .findIndex(query_result => {
+          return query_result.type === query_type && query_result.table === table_name
+        }) > -1
+    },
+
+    /**
+     * Create a sweetalert error modal with a message from an error object.
+     *
+     * @param {Object} error
+     */
     errorModal (error) {
       swal({
         title: 'Error',
@@ -75,11 +104,23 @@ export default {
       })
     },
 
+    /**
+     * Stop loading and open an error modal.
+     *
+     * @param {Object} error
+     */
     handleError (error) {
       this.loading = false
       this.errorModal(error)
     },
 
+    /**
+     * Wrapper around the requestUtils method of the same name.
+     * Used to do component specific actions before or after calling that method.
+     *
+     * @param {String} channel
+     * @param {any} payload
+     */
     request (channel, payload) {
       requestUtils.request(channel, payload)
       this.loading = true
@@ -92,8 +133,18 @@ export default {
         table_name = this.selected_table
       }
 
-      requestUtils.request('table-data-request', table_name)
-      this.loading = true
+      if (!this.queryResultExists('SELECT', table_name)) {
+        this.request('table-data-request', table_name)
+      }
+    },
+
+    requestDescribeTable (table_name) {
+      this.selected_table = table_name
+
+      if (!this.queryResultExists('DESCRIBE', table_name)) {
+        this.request('describe-table-request', table_name)
+      }
+
     },
 
     handleConnection () {
@@ -116,26 +167,30 @@ export default {
 
     handleTables (response) {
       this.selected_table = ''
-      this.table_data_fields = []
-      this.table_data_results = []
-      this.results_type = 'table_data'
+      this.query_results = []
 
       this.tables = response.results.map(res => res[response.fields[0].name])
       this.loading = false
     },
 
     handleDescribeTable (response) {
-      this.results_type = 'describe_table'
-      this.table_data_fields = response.fields
-      this.table_data_results = response.results
+      this.query_results.push({
+        type: 'DESCRIBE',
+        table: this.selected_table,
+        fields: response.fields,
+        results: response.results
+      })
 
       this.loading = false
     },
 
     handleTableData (response) {
-      this.results_type = 'table_data'
-      this.table_data_fields = response.fields
-      this.table_data_results = response.results
+      this.query_results.push({
+        type: 'SELECT',
+        table: this.selected_table,
+        fields: response.fields,
+        results: response.results
+      })
 
       this.loading = false
     }
@@ -149,6 +204,11 @@ export default {
 
 <style>
 @import "../../static/css/photon.min.css";
+
+.my-ui-text {
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 body {
   font-family: 'Roboto', sans-serif;

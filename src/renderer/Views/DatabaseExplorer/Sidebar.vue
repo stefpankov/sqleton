@@ -12,7 +12,7 @@
     <div class="sidebar-section">
       <div class="table-filter">
         <h5 class="nav-group-title">Filter tables by name</h5>
-        <input type="text" v-model="table_filter" class="form-control" placeholder="Table name...">
+        <input type="text" v-model="table_filter" class="form-control" placeholder="Table name">
       </div>
     </div>
 
@@ -22,9 +22,12 @@
         <a v-for="table in filtered_tables" class="nav-group-item"
           :class="{ active: table === active_table }"
           :key="table"
-          :title="table"
+          :title="`Select ${table}`"
           @click="selectTable(table)"
         >
+          <span class="icon icon-search" :title="`Describe ${table}`"
+            @click.stop="$emit('request-describe-table', table)"
+          ></span>
           {{ table }}
         </a>
       </nav>

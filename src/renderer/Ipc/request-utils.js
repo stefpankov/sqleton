@@ -39,9 +39,12 @@ export default {
   },
 
   /**
-   * Subscribe to channels defined as:
+   * Subscribe to channels.
+   * Each channel is an object that looks like this:
    *  {
-   *    'channel-name': callbackFunction
+        name: 'channel-name',
+        callback: responseHandler,
+        errorCallback: errorHandler
    *  }
    *
    * @param {Object} channels
