@@ -34,3 +34,11 @@ export default {
 }
 </script>
 
+<style>
+.results-table {
+  overflow: auto;
+  max-height: calc(100vh - 150px);
+  border-bottom: 1px solid #ddd;
+}
+</style>
+
