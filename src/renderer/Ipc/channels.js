@@ -28,6 +28,11 @@ export default {
           errorCallback: this.handleError
         },
         {
+          name: 'table-data-page-response',
+          callback: this.handleTableDataPage,
+          errorCallback: this.handleError
+        },
+        {
           name: 'describe-table-response',
           callback: this.handleDescribeTable,
           errorCallback: this.handleError

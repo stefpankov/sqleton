@@ -11,22 +11,30 @@
       <div class="pane">
         <div class="tab-group" v-if="queryResults.length > 0">
           <div class="tab-item"
-            :class="{ active: index === show_tab }"
+            :class="{ active: index === active_tab }"
             v-for="(query, index) in queryResults"
             :key="index + query.table"
             @click="showTab(index)"
           >
-            <span class="icon icon-cancel icon-close-tab" @click.stop="closeTab(index)"></span>
             {{ query.type }} {{ query.table }}
+            <span class="icon icon-cancel icon-close-tab" @click.stop="closeTab(index)"></span>
           </div>
         </div>
 
         <div class="results-content">
           <Results v-if="queryResults.length > 0"
             v-bind="{
-              fields: queryResults[show_tab].fields,
-              results: queryResults[show_tab].results
+              fields: queryResults[active_tab].fields,
+              results: queryResults[active_tab].results
             }"
+          />
+
+          <Pagination v-if="queryResults.length > 0"
+            :current-page="current_page"
+            :total-pages="total_pages"
+            @go-to-page="requestTableDataPage(active_table, 10, $event)"
+            @previous="previousPage(active_table)"
+            @next="nextPage(active_table)"
           />
         </div>
       </div>
@@ -37,13 +45,15 @@
 <script>
 import Sidebar from './Sidebar'
 import Results from './Results'
+import Pagination from './Pagination'
 
 export default {
   name: 'DatabaseExplorer',
 
   components: {
     Sidebar,
-    Results
+    Results,
+    Pagination
   },
 
   props: {
@@ -54,25 +64,69 @@ export default {
 
   data () {
     return {
-      show_tab: 0
+      active_tab: 0
+    }
+  },
+
+  watch: {
+    queryResults (data) {
+      if (data.length > 0) {
+        this.active_tab = this.active_tab >= data.length - 1
+          ? data.length - 1
+          : this.active_tab
+      }
+    }
+  },
+
+  computed: {
+    active_query () {
+      if (this.queryResults.length > 0) return this.queryResults[this.active_tab]
+
+      return {}
+    },
+
+    active_table () {
+      if (this.queryResults.length > 0) return this.active_query.table
+
+      return ''
+    },
+
+    current_page () {
+      return Math.floor(this.active_query.offset / this.active_query.limit) + 1
+    },
+
+    total_pages () {
+      return Math.ceil(this.active_query.total_results / this.active_query.limit)
     }
   },
 
   methods: {
     showTab (index) {
-      this.show_tab = index
+      this.active_tab = index
     },
 
     closeTab (index) {
-      if (this.show_tab === index) {
-        this.show_tab = index > 0 ? index - 1 : 0
-      }
-
       this.$emit('remove-query', index)
     },
 
-    requestTableData () {
-      this.$emit('request-table-data')
+    previousPage (table, limit = 10) {
+      const page = this.current_page > 1 ? this.current_page - 1 : 1
+
+      this.requestTableDataPage(table, limit, page)
+    },
+
+    nextPage (table, limit = 10) {
+      const page = this.current_page < this.total_pages ? this.current_page + 1 : this.total_pages
+
+      this.requestTableDataPage(table, limit, page)
+    },
+
+    requestTableDataPage (table, limit = 10 , page = 1) {
+      this.$emit('request-table-data-page', {
+        table,
+        limit,
+        offset: (page - 1) * limit
+      })
     }
   }
 }
