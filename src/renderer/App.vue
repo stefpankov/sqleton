@@ -127,7 +127,7 @@ export default {
       this.loading = true
     },
 
-    requestTableData (table) {
+    requestTableData ({ table, limit, offset }) {
       if (table) {
         this.selected_table = table
       } else {
@@ -135,11 +135,17 @@ export default {
       }
 
       if (!this.queryResultExists('SELECT', table)) {
-        this.request('table-data-request', { table })
+        this.request('table-data-request', { table, limit, offset })
       }
     },
 
     requestTableDataPage ({ table, limit, offset }) {
+      if (table) {
+        this.selected_table = table
+      } else {
+        table = this.selected_table
+      }
+
       this.request('table-data-page-request', { table, limit, offset })
     },
 
@@ -193,7 +199,6 @@ export default {
     handleTableDataPage (response) {
       const index = this.query_results.findIndex(result => result.table === response.table)
 
-      console.log(index)
       if (index > -1) {
         this.query_results.splice(index, 1, Object.assign(response, { type: 'SELECT' }))
       }

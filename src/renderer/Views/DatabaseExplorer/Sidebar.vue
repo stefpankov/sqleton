@@ -102,6 +102,7 @@ export default {
   width: 100%;
   background: #ffffff;
   border-radius: 3px;
+  border: 1px solid #ddd;
 }
 
 .table-filter {
