@@ -1,5 +1,7 @@
 import mysql from 'mysql'
 
+const extractCount = (response) => response['results'][0]['count(1)']
+
 export default class {
   constructor (credentials) {
     this.database = credentials.database
@@ -53,6 +55,20 @@ export default class {
         }
       })
     })
+  }
+
+  /**
+   * Count table records and resolve it as a number.
+   *
+   * @param {String} table Table  name
+   *
+   * @returns {Promise<Number>}
+   */
+  count (table) {
+    const query = mysql.format('SELECT count(1) FROM ??', [table])
+
+    return this.executeQuery(query)
+      .then(response => extractCount(response))
   }
 
   /**
@@ -111,10 +127,11 @@ export default class {
    *
    * @returns {Promise}
    */
-  getTableData (table, limit = 50, offset = 0) {
+  getTableData (table, limit = 10, offset = 0) {
     const query = mysql.format('SELECT * FROM ?? LIMIT ? OFFSET ?', [table, limit, offset])
 
-    return this.executeQuery(query)
+    return Promise.all([this.executeQuery(query), this.count(table)])
+      .then(responses => Object.assign(responses[0], { total_results: responses[1] }))
   }
 
   /**

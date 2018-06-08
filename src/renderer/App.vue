@@ -126,16 +126,14 @@ export default {
       this.loading = true
     },
 
-    requestTableData (table_name) {
-      if (table_name) {
-        this.selected_table = table_name
+    requestTableData ({ table, limit, offset }) {
+      if (table) {
+        this.selected_table = table
       } else {
-        table_name = this.selected_table
+        table = this.selected_table
       }
 
-      if (!this.queryResultExists('SELECT', table_name)) {
-        this.request('table-data-request', table_name)
-      }
+      this.request('table-data-request', { table, limit, offset })
     },
 
     requestDescribeTable (table_name) {
@@ -174,23 +172,20 @@ export default {
     },
 
     handleDescribeTable (response) {
-      this.query_results.push({
-        type: 'DESCRIBE',
-        table: this.selected_table,
-        fields: response.fields,
-        results: response.results
-      })
+      this.query_results.push(Object.assign(response, { type: 'DESCRIBE' }))
 
       this.loading = false
     },
 
     handleTableData (response) {
-      this.query_results.push({
-        type: 'SELECT',
-        table: this.selected_table,
-        fields: response.fields,
-        results: response.results
-      })
+      const index = this.query_results.findIndex(result => result.table === response.table)
+      const data = Object.assign(response, { type: 'SELECT' })
+
+      if (index > -1) {
+        this.query_results.splice(index, 1, data)
+      } else {
+        this.query_results.push(data)
+      }
 
       this.loading = false
     }
@@ -204,57 +199,6 @@ export default {
 
 <style>
 @import "../../static/css/photon.min.css";
-
-.my-ui-text {
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-body {
-  font-family: 'Roboto', sans-serif;
-}
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-  background: #aaaaaa
-}
-::-webkit-scrollbar-thumb {
-  background: #757272;
-}
-/* #app-container {
-  display: flex;
-  height: 100vh;
-} */
-
-.swal-modal .swal-title {
-  border-bottom: 1px solid #c2c0c2;
-  min-height: 22px;
-  box-shadow: inset 0 1px 0 #f5f4f5;
-  background-color: #e8e6e8;
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#e8e6e8),color-stop(100%,#d1cfd1));
-  background-image: -webkit-linear-gradient(top,#e8e6e8 0,#d1cfd1 100%);
-  background-image: linear-gradient(to bottom,#e8e6e8 0,#d1cfd1 100%);
-
-  margin: 0;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  font-size: 16px;
-  margin-bottom: 30px;
-  font-weight: normal;
-  padding: 5px;
-}
-
-.swal-footer {
-  border-top: 1px solid #c2c0c2;
-  min-height: 22px;
-  box-shadow: inset 0 1px 0 #f5f4f5;
-  background-color: #e8e6e8;
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#e8e6e8),color-stop(100%,#d1cfd1));
-  background-image: -webkit-linear-gradient(top,#e8e6e8 0,#d1cfd1 100%);
-  background-image: linear-gradient(to bottom,#e8e6e8 0,#d1cfd1 100%);
-
-  padding: 0;
-  margin-top: 30px;
-}
+@import "../../static/css/style.css";
 </style>
 
