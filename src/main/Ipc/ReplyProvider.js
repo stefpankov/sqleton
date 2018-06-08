@@ -66,9 +66,9 @@ let channels = {
 
   'table-data-request': (event, { table, limit, offset }) => {
     if (connection) {
-      return connection.getTableData(table)
+      return connection.getTableData(table, limit, offset)
         .then(response => {
-          const data = { ...response, table, limit: limit || 10, offset: offset || 0 }
+          const data = { ...response, table, limit, offset }
 
           event.sender.send('table-data-response', data)
         })
@@ -79,23 +79,6 @@ let channels = {
     }
 
     event.sender.send('table-data-response', noConnectionResponse)
-  },
-
-  'table-data-page-request': (event, { table, limit, offset }) => {
-    if (connection) {
-      return connection.getTableData(table, limit, offset)
-        .then(response => {
-          const data = { ...response, table, limit, offset }
-
-          event.sender.send('table-data-page-response', data)
-        })
-        .catch(error => {
-          console.log(error)
-          event.sender.send('table-data-page-response', error)
-        })
-    }
-
-    event.sender.send('table-data-page-response', noConnectionResponse)
   },
 
   'describe-table-request': (event, table) => {

@@ -21,15 +21,15 @@
           </div>
         </div>
 
-        <div class="results-content">
-          <Results v-if="queryResults.length > 0"
+        <div class="results-content" v-if="queryResults.length > 0">
+          <Results
             v-bind="{
               fields: queryResults[active_tab].fields,
               results: queryResults[active_tab].results
             }"
           />
 
-          <div class="filters">
+          <div class="filters" v-if="active_query.type === 'SELECT'">
             <div class="items-per-page">
               <span>Items per page:</span>
               <select v-model="items_per_page">
@@ -38,12 +38,12 @@
             </div>
           </div>
 
-          <Pagination v-if="queryResults.length > 0 && active_query.type === 'SELECT'"
+          <Pagination v-if="active_query.type === 'SELECT'"
             :current-page="current_page"
             :items-per-page="items_per_page"
             :total-items="active_query.total_results"
             :total-pages="total_pages"
-            @go-to-page="requestTableDataPage(active_table, items_per_page, $event)"
+            @go-to-page="requestTableData(active_table, items_per_page, $event)"
             @previous="previousPage(active_table, items_per_page)"
             @next="nextPage(active_table, items_per_page)"
           />
@@ -90,7 +90,7 @@ export default {
     },
 
     items_per_page (value) {
-      this.requestTableDataPage(undefined, value, 1)
+      this.requestTableData(undefined, value, 1)
     }
   },
 
@@ -165,7 +165,7 @@ export default {
     previousPage (table, limit = 10) {
       const page = this.current_page > 1 ? this.current_page - 1 : 1
 
-      this.requestTableDataPage(table, limit, page)
+      this.requestTableData(table, limit, page)
     },
 
     /**
@@ -179,19 +179,7 @@ export default {
         ? this.current_page + 1
         : this.total_pages
 
-      this.requestTableDataPage(table, limit, page)
-    },
-
-    /**
-     * Emit an event to request table data.
-     *
-     * @param {String} table
-     */
-    requestTableData (table) {
-      this.$emit('request-table-data', {
-        table,
-        limit: this.items_per_page
-      })
+      this.requestTableData(table, limit, page)
     },
 
     /**
@@ -201,8 +189,8 @@ export default {
      * @param {Number} limit
      * @param {Number} page
      */
-    requestTableDataPage (table, limit = 10 , page = 1) {
-      this.$emit('request-table-data-page', {
+    requestTableData (table, limit = 10 , page = 1) {
+      this.$emit('request-table-data', {
         table,
         limit,
         offset: (page - 1) * limit

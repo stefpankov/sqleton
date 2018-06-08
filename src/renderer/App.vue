@@ -18,7 +18,6 @@
       :query-results="query_results"
       @request-tables="request('tables-request', $event)"
       @request-table-data="requestTableData"
-      @request-table-data-page="requestTableDataPage"
       @request-describe-table="requestDescribeTable"
       @remove-query="removeQueryResult"
     />
@@ -134,19 +133,7 @@ export default {
         table = this.selected_table
       }
 
-      if (!this.queryResultExists('SELECT', table)) {
-        this.request('table-data-request', { table, limit, offset })
-      }
-    },
-
-    requestTableDataPage ({ table, limit, offset }) {
-      if (table) {
-        this.selected_table = table
-      } else {
-        table = this.selected_table
-      }
-
-      this.request('table-data-page-request', { table, limit, offset })
+      this.request('table-data-request', { table, limit, offset })
     },
 
     requestDescribeTable (table_name) {
@@ -191,16 +178,13 @@ export default {
     },
 
     handleTableData (response) {
-      this.query_results.push(Object.assign(response, { type: 'SELECT' }))
-
-      this.loading = false
-    },
-
-    handleTableDataPage (response) {
       const index = this.query_results.findIndex(result => result.table === response.table)
+      const data = Object.assign(response, { type: 'SELECT' })
 
       if (index > -1) {
-        this.query_results.splice(index, 1, Object.assign(response, { type: 'SELECT' }))
+        this.query_results.splice(index, 1, data)
+      } else {
+        this.query_results.push(data)
       }
 
       this.loading = false
