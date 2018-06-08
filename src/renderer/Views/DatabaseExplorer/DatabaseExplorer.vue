@@ -29,8 +29,10 @@
             }"
           />
 
-          <Pagination v-if="queryResults.length > 0"
+          <Pagination v-if="queryResults.length > 0 && active_query.type === 'SELECT'"
             :current-page="current_page"
+            :items-per-page="10"
+            :total-items="active_query.total_results"
             :total-pages="total_pages"
             @go-to-page="requestTableDataPage(active_table, 10, $event)"
             @previous="previousPage(active_table)"
