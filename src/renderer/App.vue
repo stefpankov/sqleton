@@ -4,7 +4,7 @@
 
     <Toolbar v-show="is_connected"
       @back="request('disconnect-request')"
-      @refresh="requestTableData(selected_table)"
+      @refresh="refreshQueryResults"
     />
 
     <CreateConnection
@@ -124,6 +124,19 @@ export default {
     request (channel, payload) {
       requestUtils.request(channel, payload)
       this.loading = true
+    },
+
+    /**
+     * Send a new table data request for each query result to refresh them.
+     */
+    refreshQueryResults () {
+      this.query_results.forEach(query => {
+        this.requestTableData({
+          table: query.table,
+          limit: query.limit,
+          offset: query.offset
+        })
+      })
     },
 
     requestTableData ({ table, limit, offset }) {
