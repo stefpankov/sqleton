@@ -44,8 +44,8 @@
             :total-items="active_query.total_results"
             :total-pages="total_pages"
             @go-to-page="requestTableData(active_table, items_per_page, $event)"
-            @previous="previousPage(active_table, items_per_page)"
-            @next="nextPage(active_table, items_per_page)"
+            @previous="previousPage"
+            @next="nextPage"
           />
         </div>
       </div>
@@ -158,28 +158,22 @@ export default {
 
     /**
      * Request the previous page for the query results.
-     *
-     * @param {String} table
-     * @param {Number} limit
      */
-    previousPage (table, limit = 10) {
+    previousPage () {
       const page = this.current_page > 1 ? this.current_page - 1 : 1
 
-      this.requestTableData(table, limit, page)
+      this.requestTableData(this.active_table, this.items_per_page, page)
     },
 
     /**
      * Request the next page for the query results.
-     *
-     * @param {String} table
-     * @param {Number} limit
      */
-    nextPage (table, limit = 10) {
+    nextPage () {
       const page = this.current_page < this.total_pages
         ? this.current_page + 1
         : this.total_pages
 
-      this.requestTableData(table, limit, page)
+      this.requestTableData(this.active_table, this.items_per_page, page)
     },
 
     /**
