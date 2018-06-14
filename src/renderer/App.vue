@@ -8,7 +8,8 @@
     />
 
     <WindowContent v-if="!is_connected" class="content-center grey-bg">
-      <CreateConnection
+      <ConnectionManager
+        :connections="saved_connections"
         :disable="loading"
         @connect="request('connect-request', $event)"
       />
@@ -44,7 +45,7 @@ import LoadingIndicator from './Components/LoadingIndicator'
 import Toolbar from './Components/Toolbar'
 import Sidebar from './Components/Sidebar'
 
-import CreateConnection from './Views/CreateConnection/CreateConnection'
+import ConnectionManager from './Views/ConnectionManager/ConnectionManager'
 import ResultsListing from './Views/ResultsListing/ResultsListing'
 
 import requestUtils from './Ipc/request-utils'
@@ -59,7 +60,7 @@ export default {
     LoadingIndicator,
     Toolbar,
     Sidebar,
-    CreateConnection,
+    ConnectionManager,
     ResultsListing
   },
 
@@ -69,6 +70,7 @@ export default {
 
   data () {
     return {
+      saved_connections: [],
       is_connected: false,
       databases: [],
       tables: [],
@@ -177,6 +179,11 @@ export default {
 
     },
 
+    handleGetConnections ({ saved_connections }) {
+      this.saved_connections = saved_connections
+      this.loading = false
+    },
+
     handleConnection () {
       this.is_connected = true
       requestUtils.request('databases-request')
@@ -225,6 +232,8 @@ export default {
 
   created () {
     requestUtils.subscribeToChannels(this.channels)
+
+    this.request('get-connections-request')
   }
 }
 </script>

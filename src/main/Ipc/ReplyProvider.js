@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import settings from 'electron-settings'
 import Connection from '../Database/Connection'
 
 const noConnectionResponse = { success: false, message: 'No connection.' }
@@ -6,6 +7,17 @@ const noConnectionResponse = { success: false, message: 'No connection.' }
 let connection
 
 let channels = {
+  'get-connections-request': (event) => {
+    let saved_connections = []
+    if (settings.has('saved_connections')) {
+      saved_connections = settings.get('saved_connections')
+    }
+
+    event.sender.send('get-connections-response', {
+      success: true,
+      saved_connections
+    })
+  },
   'connect-request': (event, credentials) => {
     connection = new Connection(credentials)
 

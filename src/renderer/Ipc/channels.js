@@ -3,6 +3,11 @@ export default {
     return {
       channels: [
         {
+          name: 'get-connections-response',
+          callback: this.handleGetConnections,
+          errorCallback: this.handleError
+        },
+        {
           name: 'connect-response',
           callback: this.handleConnection,
           errorCallback: this.handleError
