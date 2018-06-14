@@ -1,6 +1,7 @@
 import path from 'path'
 import { formatUrl } from 'url'
 import { app, BrowserWindow, Menu } from 'electron'
+import settings from 'electron-settings'
 import ReplyProvider from './Ipc/ReplyProvider'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -10,13 +11,26 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow
 
 const createWindow = () => {
+  // Load window state or set defaults
+  let windowState = {
+    isMaximized: false,
+    bounds: { x: undefined, y: undefined, width: 1200, height: 600 }
+  }
+
+  if (settings.has('window_state')) {
+    windowState = settings.get('window_state')
+  }
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     title: 'Sqleton',
-    width: 1200,
-    height: 600,
+    ...windowState.bounds,
     icon: path.join(__static, '/skeleton128.png'),
   })
+
+  if (windowState.isMaximized) {
+    mainWindow.maximize()
+  }
 
   // Open the DevTools.
   if (isDevelopment) {
@@ -41,10 +55,25 @@ const createWindow = () => {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+  });
+
+  ['resize', 'move', 'close'].forEach(e => {
+    mainWindow.on(e, () => {
+      windowState.isMaximized = mainWindow.isMaximized()
+
+      if (!windowState.isMaximized) {
+        // only update bounds if the window isn’t currently maximized
+        windowState.bounds = mainWindow.getBounds()
+      }
+
+      settings.set('window_state', windowState)
+    })
   })
 
   // Remove application menu
   Menu.setApplicationMenu(null)
+
+  ReplyProvider.registerReplies()
 }
 
 // This method will be called when Electron has finished
@@ -70,9 +99,8 @@ app.on('activate', () => {
 })
 
 process.on('uncaughtException', function (error) {
-  console.log(error)
+  console.error('uncaught', error)
 })
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ReplyProvider.registerReplies()

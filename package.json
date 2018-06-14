@@ -25,6 +25,7 @@
     "devDependencies": {
         "devtron": "^1.4.0",
         "electron": "^2.0.2",
+        "electron-settings": "^3.2.0",
         "electron-webpack": "^2.1.2",
         "electron-webpack-eslint": "^2.1.1",
         "electron-webpack-vue": "^2.1.3",
