@@ -7,29 +7,45 @@
       @refresh="refreshQueryResults"
     />
 
-    <CreateConnection
-      v-if="!is_connected"
-      @connect="request('connect-request', $event)"
-    />
+    <WindowContent v-if="!is_connected" class="content-center grey-bg">
+      <CreateConnection
+        :disable="loading"
+        @connect="request('connect-request', $event)"
+      />
+    </WindowContent>
 
-    <DatabaseExplorer v-else
-      :databases="databases"
-      :tables="tables"
-      :query-results="query_results"
-      @request-tables="request('tables-request', $event)"
-      @request-table-data="requestTableData"
-      @request-describe-table="requestDescribeTable"
-      @remove-query="removeQueryResult"
-    />
+    <WindowContent v-else>
+      <PaneGroup>
+        <Sidebar v-bind="{ databases, tables }"
+          @request-tables="request('tables-request', $event)"
+          @request-table-data="requestTableData"
+          @request-describe-table="requestDescribeTable"
+        />
+
+        <ResultsListing
+          :databases="databases"
+          :tables="tables"
+          :query-results="query_results"
+          @request-table-data="requestTableData"
+          @remove-query="removeQueryResult"
+        />
+      </PaneGroup>
+    </WindowContent>
   </div>
 </template>
 
 <script>
 import swal from 'sweetalert'
+
+import WindowContent from './Views/Layout/WindowContent'
+import PaneGroup from './Views/Layout/PaneGroup'
+
 import LoadingIndicator from './Components/LoadingIndicator'
 import Toolbar from './Components/Toolbar'
+import Sidebar from './Components/Sidebar'
+
 import CreateConnection from './Views/CreateConnection/CreateConnection'
-import DatabaseExplorer from './Views/DatabaseExplorer/DatabaseExplorer'
+import ResultsListing from './Views/ResultsListing/ResultsListing'
 
 import requestUtils from './Ipc/request-utils'
 import channels from './Ipc/channels'
@@ -38,10 +54,13 @@ export default {
   name: 'App',
 
   components: {
+    WindowContent,
+    PaneGroup,
     LoadingIndicator,
+    Toolbar,
+    Sidebar,
     CreateConnection,
-    DatabaseExplorer,
-    Toolbar
+    ResultsListing
   },
 
   mixins: [
@@ -139,7 +158,7 @@ export default {
       })
     },
 
-    requestTableData ({ table, limit, offset }) {
+    requestTableData ({ table, limit = 10, offset = 0 }) {
       if (table) {
         this.selected_table = table
       } else {

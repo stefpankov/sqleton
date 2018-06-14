@@ -31,10 +31,6 @@ export default {
           name: 'describe-table-response',
           callback: this.handleDescribeTable,
           errorCallback: this.handleError
-        },
-        {
-          name: 'error',
-          errorCallback: this.handleError
         }
       ]
     }

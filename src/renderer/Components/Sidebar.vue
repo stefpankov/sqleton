@@ -75,7 +75,7 @@ export default {
 
     selectTable (table) {
       this.active_table = table
-      this.$emit('request-table-data', table)
+      this.$emit('request-table-data', { table })
     }
   }
 }

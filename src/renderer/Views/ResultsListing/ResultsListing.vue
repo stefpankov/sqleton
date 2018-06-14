@@ -1,68 +1,57 @@
 <template>
-  <div id="database-explorer" class="window-content">
-    <div class="pane-group">
-      <Sidebar
-        v-bind="{ databases, tables }"
-        @request-tables="$listeners['request-tables']"
-        @request-table-data="requestTableData"
-        @request-describe-table="$listeners['request-describe-table']"
-      />
-
-      <div class="pane">
-        <div class="tab-group" v-if="queryResults.length > 0">
-          <div class="tab-item"
-            :class="{ active: index === active_tab }"
-            v-for="(query, index) in queryResults"
-            :key="index + query.table"
-            @click="showTab(index)"
-          >
-            {{ query.type }} {{ query.table }}
-            <span class="icon icon-cancel icon-close-tab" @click.stop="closeTab(index)"></span>
-          </div>
-        </div>
-
-        <div class="results-content" v-if="queryResults.length > 0">
-          <Results
-            v-bind="{
-              fields: queryResults[active_tab].fields,
-              results: queryResults[active_tab].results
-            }"
-          />
-
-          <div class="filters" v-if="active_query.type === 'SELECT'">
-            <div class="items-per-page">
-              <span>Items per page:</span>
-              <select v-model="items_per_page">
-                <option v-for="n in [10, 20, 50, 100]" :key="n" :value="n">{{ n }}</option>
-              </select>
-            </div>
-          </div>
-
-          <Pagination v-if="active_query.type === 'SELECT'"
-            :current-page="current_page"
-            :items-per-page="items_per_page"
-            :total-items="active_query.total_results"
-            :total-pages="total_pages"
-            @go-to-page="requestTableData(active_table, items_per_page, $event)"
-            @previous="previousPage"
-            @next="nextPage"
-          />
-        </div>
+  <Pane>
+    <div class="tab-group" v-if="queryResults.length > 0">
+      <div class="tab-item"
+        :class="{ active: index === active_tab }"
+        v-for="(query, index) in queryResults"
+        :key="index + query.table"
+        @click="showTab(index)"
+      >
+        {{ query.type }} {{ query.table }}
+        <span class="icon icon-cancel icon-close-tab" @click.stop="closeTab(index)"></span>
       </div>
     </div>
-  </div>
+
+    <div class="results-content" v-if="queryResults.length > 0">
+      <Results
+        v-bind="{
+          fields: queryResults[active_tab].fields,
+          results: queryResults[active_tab].results
+        }"
+      />
+
+      <div class="filters" v-if="active_query.type === 'SELECT'">
+        <div class="items-per-page">
+          <span>Items per page:</span>
+          <select v-model="items_per_page">
+            <option v-for="n in [10, 20, 50, 100]" :key="n" :value="n">{{ n }}</option>
+          </select>
+        </div>
+      </div>
+
+      <Pagination v-if="active_query.type === 'SELECT'"
+        :current-page="current_page"
+        :items-per-page="items_per_page"
+        :total-items="active_query.total_results"
+        :total-pages="total_pages"
+        @go-to-page="requestTableData(active_table, items_per_page, $event)"
+        @previous="previousPage"
+        @next="nextPage"
+      />
+    </div>
+  </Pane>
 </template>
 
 <script>
-import Sidebar from './Sidebar'
+import Pane from '../Layout/Pane'
 import Results from './Results'
 import Pagination from './Pagination'
 
 export default {
-  name: 'DatabaseExplorer',
+  name: 'ResultsListing',
 
   components: {
-    Sidebar,
+    Pane,
     Results,
     Pagination
   },
@@ -75,18 +64,31 @@ export default {
 
   data () {
     return {
+      result_count: 0,
       active_tab: 0,
       items_per_page: 10
     }
   },
 
   watch: {
+    /**
+     * Handle tab switching when query results get updated.
+     * If we get more results than before, it means we have new tabs so we need to switch to the latest tab.
+     * If we get less results, it means tabs were removed so we need to be smart about which tab we'll switch to,
+     *    if currently active tab is out of bounds, switch to last available tab, else keep active tab.
+     */
     queryResults (data) {
-      if (data.length > 0) {
+      const old_count = this.result_count
+
+      if (old_count < data.length) {
+        this.active_tab = data.length - 1
+      } else {
         this.active_tab = this.active_tab >= data.length - 1
           ? data.length - 1
           : this.active_tab
       }
+
+      this.result_count = data.length
     },
 
     items_per_page (value) {

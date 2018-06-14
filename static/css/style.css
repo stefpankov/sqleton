@@ -15,6 +15,14 @@ body {
   background: #757272;
 }
 
+.content-center {
+  justify-content: center;
+}
+
+.grey-bg {
+  background-color: #f5f5f4;
+}
+
 .tab-item .icon-close-tab {
   left: auto;
   right: 5px;
