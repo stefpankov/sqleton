@@ -12,6 +12,16 @@ export default {
   },
 
   /**
+   * Send a synchronous request to an ipcMain sync listener.
+   *
+   * @param {String} channel ipcMain channel
+   * @param {any} payload Any data that the channel expects
+   */
+  requestSync (channel, payload) {
+    return ipcRenderer.sendSync(`${channel}-sync`, payload)
+  },
+
+  /**
    * Subscribe to a channel and handle incoming responses.
    *
    * @param {String} channel

@@ -2,15 +2,18 @@
   <div id="app-container" class="window">
     <LoadingIndicator v-if="loading" />
 
-    <Toolbar v-show="is_connected"
+    <Toolbar
+      :is-connected="is_connected"
       @back="request('disconnect-request')"
       @refresh="refreshQueryResults"
     />
 
-    <WindowContent v-if="!is_connected" class="content-center grey-bg">
-      <CreateConnection
+    <WindowContent v-if="!is_connected">
+      <ConnectionManager
+        :connections="saved_connections"
         :disable="loading"
         @connect="request('connect-request', $event)"
+        @delete-connection="request('delete-connection-request', $event)"
       />
     </WindowContent>
 
@@ -44,7 +47,7 @@ import LoadingIndicator from './Components/LoadingIndicator'
 import Toolbar from './Components/Toolbar'
 import Sidebar from './Components/Sidebar'
 
-import CreateConnection from './Views/CreateConnection/CreateConnection'
+import ConnectionManager from './Views/ConnectionManager/ConnectionManager'
 import ResultsListing from './Views/ResultsListing/ResultsListing'
 
 import requestUtils from './Ipc/request-utils'
@@ -59,7 +62,7 @@ export default {
     LoadingIndicator,
     Toolbar,
     Sidebar,
-    CreateConnection,
+    ConnectionManager,
     ResultsListing
   },
 
@@ -69,6 +72,7 @@ export default {
 
   data () {
     return {
+      saved_connections: [],
       is_connected: false,
       databases: [],
       tables: [],
@@ -177,9 +181,20 @@ export default {
 
     },
 
+    handleGetConnections ({ saved_connections }) {
+      this.saved_connections = saved_connections
+      this.loading = false
+    },
+
+    handleDeleteConnection ({ saved_connections }) {
+      this.saved_connections = saved_connections
+      this.loading = false
+    },
+
     handleConnection () {
       this.is_connected = true
-      requestUtils.request('databases-request')
+      this.request('connections-request')
+      this.request('databases-request')
       this.loading = true
     },
 
@@ -225,6 +240,8 @@ export default {
 
   created () {
     requestUtils.subscribeToChannels(this.channels)
+
+    this.saved_connections = requestUtils.requestSync('get-connections-request')
   }
 }
 </script>
@@ -233,4 +250,3 @@ export default {
 @import "../../static/css/photon.min.css";
 @import "../../static/css/style.css";
 </style>
-

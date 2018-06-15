@@ -1,7 +1,7 @@
 <template>
   <header class="toolbar toolbar-header">
     <div class="toolbar-actions">
-      <div class="btn-group">
+      <div class="btn-group" v-if="isConnected">
         <button class="btn btn-default" title="Back to connections"
           @click="$emit('back')"
         >
@@ -19,7 +19,11 @@
 
 <script>
 export default {
-  name: 'Toolbar'
+  name: 'Toolbar',
+
+  props: {
+    isConnected: Boolean
+  }
 }
 </script>
 
