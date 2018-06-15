@@ -1,41 +1,101 @@
 <template>
-  <div class="card-group">
-    <div class="card empty" v-if="connections.length < 1">
-      <header class="toolbar toolbar-header">
-        <h1 class="title">No connections</h1>
-      </header>
-      <div class="card-body" style="text-align:center;font-size:60px">
-        <span class="icon icon-plus-squared" title="Create new connection"
-          @click="newConnection"
-        ></span>
+  <CreateConnection
+    v-if="show_create_connection"
+    :disable="disable"
+    @connect="$listeners['connect']"
+    @cancel="show_create_connection = false"
+  />
+  <div class="card-group" v-else>
+    <Card
+      v-for="(connection, index) in connections"
+      :key="index + connection.name"
+    >
+      <span slot="title">{{ connection.name }}</span>
+      <div slot="body" style="margin: 15px 0">
+        <span class="nav-group-item">
+          <span class="icon icon-database"></span>
+          {{ connection.host }}
+        </span>
+        <span class="nav-group-item">
+          <span class="icon icon-socket"></span>
+          {{ connection.port }}
+        </span>
+        <span class="nav-group-item">
+          <span class="icon icon-user"></span>
+          {{ connection.user }}
+        </span>
       </div>
-      <footer class="toolbar toolbar-footer">
-      </footer>
-    </div>
+      <div slot="footer">
+        <div class="toolbar-actions">
+          <button class="btn btn-negative btn-mini" @click="deleteConnection(index)">
+            Delete
+          </button>
+          <button class="btn btn-positive btn-mini pull-right" @click="connect(connection)">
+            Connect
+          </button>
+        </div>
+      </div>
+    </Card>
 
-    <template v-else>
-      <div class="card"
-        v-for="(connection, index) in connections"
-        :key="index + connection.name"
+    <Card class="new-connection">
+      <span slot="title">New connection</span>
+      <span slot="body"
+        class="icon icon-plus-circled"
+        @click="show_create_connection = true"
       >
-        <h5>{{ connection.name }}</h5>
-        <p>{{ connection.type }}</p>
-      </div>
-    </template>
+      </span>
+    </Card>
   </div>
 </template>
 
 <script>
+import swal from 'sweetalert'
+import Card from '../Layout/Card'
+import CreateConnection from './CreateConnection'
+
 export default {
   name: 'ConnectionManager',
 
+  components: {
+    Card,
+    CreateConnection
+  },
+
   props: {
+    disable: Boolean,
     connections: Array
   },
 
+  mounted () {
+    this.show_create_connection = this.connections.length < 1
+  },
+
+  data () {
+    return {
+      show_create_connection: false
+    }
+  },
+
   methods: {
-    newConnection () {
-      //
+    connect (connection) {
+      swal({
+        title: 'Connection password',
+        content: {
+          element: 'input',
+          attributes: {
+            type: 'password'
+          }
+        },
+        button: { text: 'Connect', className: 'btn btn-primary' }
+      })
+        .then((password) => {
+          connection.password = password
+          this.$emit('connect', connection)
+        })
+    },
+
+    deleteConnection (index) {
+      this.$emit('delete-connection', index)
     }
   }
 }
@@ -45,17 +105,16 @@ export default {
 .card-group {
   padding: 10px;
   width: 100%;
-}
-.card {
-  background: white;
-  border-radius: 3px;
-  border: 1px solid #cecece;
-  width: 200px;
-  min-height: 100px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.new-connection {
+  text-align: center;
+  font-size: 70px;
+}
+
+.new-connection .icon {
+  cursor: pointer;
 }
 </style>
-
-

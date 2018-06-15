@@ -8,6 +8,11 @@ export default {
           errorCallback: this.handleError
         },
         {
+          name: 'delete-connection-response',
+          callback: this.handleDeleteConnection,
+          errorCallback: this.handleError
+        },
+        {
           name: 'connect-response',
           callback: this.handleConnection,
           errorCallback: this.handleError

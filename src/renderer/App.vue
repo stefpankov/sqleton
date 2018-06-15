@@ -2,16 +2,18 @@
   <div id="app-container" class="window">
     <LoadingIndicator v-if="loading" />
 
-    <Toolbar v-show="is_connected"
+    <Toolbar
+      :is-connected="is_connected"
       @back="request('disconnect-request')"
       @refresh="refreshQueryResults"
     />
 
-    <WindowContent v-if="!is_connected" class="content-center grey-bg">
+    <WindowContent v-if="!is_connected">
       <ConnectionManager
         :connections="saved_connections"
         :disable="loading"
         @connect="request('connect-request', $event)"
+        @delete-connection="request('delete-connection-request', $event)"
       />
     </WindowContent>
 
@@ -184,9 +186,15 @@ export default {
       this.loading = false
     },
 
+    handleDeleteConnection ({ saved_connections }) {
+      this.saved_connections = saved_connections
+      this.loading = false
+    },
+
     handleConnection () {
       this.is_connected = true
-      requestUtils.request('databases-request')
+      this.request('connections-request')
+      this.request('databases-request')
       this.loading = true
     },
 
@@ -233,7 +241,7 @@ export default {
   created () {
     requestUtils.subscribeToChannels(this.channels)
 
-    this.request('get-connections-request')
+    this.saved_connections = requestUtils.requestSync('get-connections-request')
   }
 }
 </script>
@@ -242,4 +250,3 @@ export default {
 @import "../../static/css/photon.min.css";
 @import "../../static/css/style.css";
 </style>
-
