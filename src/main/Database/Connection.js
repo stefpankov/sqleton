@@ -17,7 +17,7 @@ export default {
 
     this.connection = mysql.createConnection(credentials)
 
-    return this.connection.connect(callback())
+    return this.connection.connect(callback)
   },
 
   /**
@@ -30,8 +30,8 @@ export default {
     return new Promise((resolve, reject) => {
       this.createConnection(credentials, function (error) {
           if (error) {
-            console.error(error)
-            reject({ success: false, message: error.message, })
+            console.error('connect', error)
+            reject({ success: false, message: error.message || error.sqlMessage || error.code, })
           } else {
             resolve({ success: true, message: 'Successfully connected.', })
           }
@@ -42,10 +42,12 @@ export default {
   disconnect () {
     this.connection.end(function (error) {
       if (error) {
-        console.error(error)
+        console.error('disconnect', error)
         throw error
       }
     })
+
+    this.connection = undefined
   },
 
   /**

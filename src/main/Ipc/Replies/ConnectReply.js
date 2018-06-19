@@ -11,7 +11,7 @@ export default {
         event.sender.send('connect-response', response)
       })
       .catch(error => {
-        console.log(error)
+        console.error('connect reply', error)
         event.sender.send('connect-response', error)
       })
   }
