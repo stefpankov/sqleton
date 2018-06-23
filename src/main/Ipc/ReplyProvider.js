@@ -8,45 +8,25 @@ import TablesReply from './Replies/TablesReply'
 import TableDataReply from './Replies/TableDataReply'
 import DescribeTableReply from './Replies/DescribeTableReply'
 
+/**
+ * Define which request channels gets handled by which function.
+ */
 let channels = {
-  'get-connections-request': (event) => {
-    GetConnectionsReply.handle(event)
-  },
-
-  'get-connections-request-sync': (event) => {
-    GetConnectionsReply.handleSync(event)
-  },
-
-  'delete-connection-request': (event, connection_index) => {
-    DeleteConnectionReply.handle(event, connection_index)
-  },
-
-  'connect-request': (event, credentials) => {
-    ConnectReply.handle(event, credentials)
-  },
-
-  'disconnect-request': (event) => {
-    DisconnectReply.handle(event)
-  },
-
-  'databases-request': (event) => {
-    DatabasesReply.handle(event)
-  },
-
-  'tables-request': (event, database) => {
-    TablesReply.handle(event, database)
-  },
-
-  'table-data-request': (event, payload) => {
-    TableDataReply.handle(event, payload)
-  },
-
-  'describe-table-request': (event, table) => {
-    DescribeTableReply.handle(event, table)
-  }
+  'get-connections-request': GetConnectionsReply.handle,
+  'get-connections-request-sync': GetConnectionsReply.handleSync,
+  'delete-connection-request': DeleteConnectionReply.handle,
+  'connect-request': ConnectReply.handle,
+  'disconnect-request': DisconnectReply.handle,
+  'databases-request': DatabasesReply.handle,
+  'tables-request': TablesReply.handle,
+  'table-data-request': TableDataReply.handle,
+  'describe-table-request': DescribeTableReply.handle,
 }
 
 export default {
+  /**
+   * Register each defined reply handler to it's channel.
+   */
   registerReplies () {
     Object.keys(channels)
       .forEach(channel => {
