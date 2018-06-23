@@ -20,7 +20,7 @@
       <nav class="nav-group">
         <h5 class="nav-group-title">Tables</h5>
         <a v-for="table in filtered_tables" class="nav-group-item"
-          :class="{ active: table === active_table }"
+          :class="{ active: table === activeTable }"
           :key="table"
           :title="`Select ${table}`"
           @click="selectTable(table)"
@@ -42,12 +42,12 @@ export default {
   props: {
     databases: Array,
     tables: Array,
+    activeTable: String
   },
 
   data () {
     return {
       selected_database: null,
-      active_table: null,
       table_filter: ''
     }
   },
@@ -74,7 +74,6 @@ export default {
     },
 
     selectTable (table) {
-      this.active_table = table
       this.$emit('request-table-data', { table })
     }
   }

@@ -19,7 +19,7 @@
 
     <WindowContent v-else>
       <PaneGroup>
-        <Sidebar v-bind="{ databases, tables }"
+        <Sidebar v-bind="{ databases, tables, activeTable: selected_table }"
           @request-tables="request('tables-request', $event)"
           @request-table-data="requestTableData"
           @request-describe-table="requestDescribeTable"
@@ -31,6 +31,7 @@
           :query-results="query_results"
           @request-table-data="requestTableData"
           @remove-query="removeQueryResult"
+          @active-query-result-changed="handleSelectedTableChanged"
         />
       </PaneGroup>
     </WindowContent>
@@ -88,6 +89,10 @@ export default {
       this.tables = []
       this.selected_table = ''
       this.query_results = []
+    },
+
+    handleSelectedTableChanged (table_name) {
+      this.selected_table = table_name
     },
 
     /**

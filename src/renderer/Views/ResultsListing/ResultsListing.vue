@@ -76,6 +76,8 @@ export default {
      * If we get more results than before, it means we have new tabs so we need to switch to the latest tab.
      * If we get less results, it means tabs were removed so we need to be smart about which tab we'll switch to,
      *    if currently active tab is out of bounds, switch to last available tab, else keep active tab.
+     *
+     * @param {Array} data The query results data
      */
     queryResults (data) {
       const old_count = this.result_count
@@ -91,8 +93,24 @@ export default {
       this.result_count = data.length
     },
 
+    /**
+     * When the items per page filter changes, request the table data again.
+     *
+     * @param {Number} value
+     */
     items_per_page (value) {
       this.requestTableData(undefined, value, 1)
+    },
+
+    /**
+     * @param {Number} value
+     */
+    active_tab (query_result_index) {
+      const result = this.queryResults[query_result_index]
+
+      if (result) {
+        this.$emit('active-query-result-changed', result.table)
+      }
     }
   },
 

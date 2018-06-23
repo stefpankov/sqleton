@@ -7,8 +7,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, index) in results" :key="index + row[prepared_fields[0]]">
-          <td v-for="(field, index) in prepared_fields" :key="index + field">
+        <tr v-for="(row, index) in results" :key="`${index}${row[prepared_fields[0]]}`">
+          <td v-for="(field, index) in prepared_fields" :key="`${index}${field}`">
             {{ row[field] }}
           </td>
         </tr>
