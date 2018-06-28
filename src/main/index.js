@@ -4,7 +4,7 @@ import { app, BrowserWindow, Menu } from 'electron'
 import settings from 'electron-settings'
 import ReplyProvider from './Ipc/ReplyProvider'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
