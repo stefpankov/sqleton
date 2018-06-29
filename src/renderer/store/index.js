@@ -8,6 +8,7 @@ import actions from './actions'
 export default new Vuex.Store({
   strict: process.env.NODE_ENV === 'development',
   state: {
+    initialized: false,
     saved_connections: [],
     is_connected: false,
     databases: [],

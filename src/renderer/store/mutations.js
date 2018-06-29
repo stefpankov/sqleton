@@ -1,4 +1,8 @@
 export default {
+  INITIALIZED (state, value) {
+    state.initialized = value
+  },
+
   RESET_STATE (state) {
     state.saved_connections = []
     state.databases = []
