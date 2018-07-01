@@ -1,5 +1,19 @@
+import swal from 'sweetalert'
 import requestUtils from '../ipc/request-utils'
 import channels from '../ipc/channels'
+
+/**
+ * Create a sweetalert error modal with a message from an error object.
+ *
+ * @param {Object} error
+ */
+const errorModal = function (error) {
+  swal({
+    title: 'Error',
+    text: error.message,
+    button: { text: 'Close', className: 'btn btn-primary' }
+  })
+}
 
 export default {
   ...requestUtils,
@@ -15,6 +29,16 @@ export default {
         commit('SET_SAVED_CONNECTIONS', response)
         commit('INITIALIZED', true)
       })
+  },
+
+  handleError({ commit }, error) {
+    commit('SET_LOADING', false)
+
+    errorModal(error)
+  },
+
+  changeSelectedTable ({ commit }, table_name) {
+    commit('SET_SELECTED_TABLE', table_name)
   },
 
   /**
@@ -79,9 +103,88 @@ export default {
     commit('SET_LOADING', false)
   },
 
-  handleDescribeTable(response) {
-    this.query_results.push(Object.assign(response, { type: 'DESCRIBE' }))
+  handleTableData({ state, commit }, response) {
+    const index = state.query_results.findIndex(result => result.table === response.table)
+    const data = Object.assign(response, { type: 'SELECT' })
 
-    this.loading = false
+    if (index > -1) {
+      commit('REPLACE_QUERY_RESULTS', {
+        index,
+        new_results: data
+      })
+    } else {
+      commit('UPDATE_QUERY_RESULTS', data)
+    }
+
+    commit('SET_LOADING', false)
+  },
+
+  handleDescribeTable({ commit }, response) {
+    commit('UPDATE_QUERY_RESULTS', Object.assign(response, { type: 'DESCRIBE' }))
+
+    commit('SET_LOADING', false)
+  },
+
+  requestTableData({ state, commit, dispatch }, { table, limit = 10, offset = 0 }) {
+    if (table) {
+      commit('SET_SELECTED_TABLE', table)
+    } else {
+      table = state.selected_table
+    }
+
+    dispatch('request', {
+      channel: 'table-data-request',
+      payload: { table, limit, offset }
+    })
+  },
+
+  /**
+   * Request a DESCRIBE table query.
+   *
+   * @param {String} table_name
+   */
+  requestDescribeTable({ commit, dispatch }, table_name) {
+    commit('SET_SELECTED_TABLE', table_name)
+
+    if (!this.queryResultExists({ query_type: 'DESCRIBE', table_name })) {
+      dispatch('request', { channel: 'describe-table-request', payload: table_name })
+    }
+  },
+
+  /**
+   * Remove a query result by given index.
+   *
+   * @param {Number} index
+   */
+  removeQueryResult({ commit }, index) {
+    commit('REMOVE_QUERY_RESULTS', index)
+  },
+
+  /**
+   * Send a new table data request for each query result to refresh them.
+   */
+  refreshQueryResults ({ state, dispatch }) {
+    state.query_results.forEach(query => {
+      dispatch('requestTableData', {
+        table: query.table,
+        limit: query.limit,
+        offset: query.offset
+      })
+    })
+  },
+
+  /**
+   * Check whether table already has results for a specific type of query.
+   *
+   * @param {String} query_type
+   * @param {String} table_name
+   *
+   * @returns {Boolean}
+   */
+  queryResultExists({ state }, { query_type, table_name }) {
+    return state.query_results
+      .findIndex(query_result => {
+        return query_result.type === query_type && query_result.table === table_name
+      }) > -1
   },
 }

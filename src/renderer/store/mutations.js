@@ -35,6 +35,18 @@ export default {
     state.query_results = results
   },
 
+  UPDATE_QUERY_RESULTS (state, results) {
+    state.query_results.push(results)
+  },
+
+  REMOVE_QUERY_RESULTS (state, index) {
+    state.query_results.splice(index, 1)
+  },
+
+  REPLACE_QUERY_RESULTS (state, { index, new_results }) {
+    state.query_results.splice(index, 1, new_results)
+  },
+
   SET_TABLES (state, tables) {
     state.tables = tables
   }

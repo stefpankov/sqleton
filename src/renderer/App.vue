@@ -25,14 +25,14 @@
           @request-describe-table="requestDescribeTable"
         />
 
-        <!-- <ResultsListing
+        <ResultsListing
           :databases="databases"
           :tables="tables"
           :query-results="query_results"
           @request-table-data="requestTableData"
           @remove-query="removeQueryResult"
-          @active-query-result-changed="handleSelectedTableChanged"
-        /> -->
+          @active-query-result-changed="changeSelectedTable"
+        />
       </PaneGroup>
     </WindowContent> -->
   </div>
@@ -53,7 +53,7 @@ import Toolbar from './Components/Toolbar'
 import Sidebar from './Components/Sidebar'
 
 import ConnectionManager from './Views/ConnectionManager/ConnectionManager'
-// import ResultsListing from './Views/ResultsListing/ResultsListing'
+import ResultsListing from './Views/ResultsListing/ResultsListing'
 
 export default {
   name: 'App',
@@ -64,7 +64,8 @@ export default {
     LoadingIndicator,
     Toolbar,
     Sidebar,
-    ConnectionManager
+    ConnectionManager,
+    ResultsListing
   },
 
   computed: {
@@ -83,6 +84,11 @@ export default {
   methods: {
     ...mapActions([
       'init',
+      'requestTableData',
+      'requestDescribeTable',
+      'refreshQueryResults',
+      'removeQueryResult',
+      'changeSelectedTable'
     ]),
     ...mapActions({
       storeRequest: 'request'
@@ -90,20 +96,7 @@ export default {
 
     request (channel, payload) {
       this.storeRequest({ channel, payload })
-    },
-
-    /**
-     * Send a new table data request for each query result to refresh them.
-     */
-    refreshQueryResults () {
-      // this.query_results.forEach(query => {
-      //   this.requestTableData({
-      //     table: query.table,
-      //     limit: query.limit,
-      //     offset: query.offset
-      //   })
-      // })
-    },
+    }
   },
 
   created () {
