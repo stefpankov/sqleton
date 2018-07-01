@@ -5,12 +5,7 @@
     <Toolbar />
 
     <WindowContent v-if="!is_connected">
-      <ConnectionManager
-        :connections="saved_connections"
-        :disable="loading"
-        @connect="request('connect-request', $event)"
-        @delete-connection="request('delete-connection-request', $event)"
-      />
+      <ConnectionManager />
     </WindowContent>
 
     <WindowContent v-else>

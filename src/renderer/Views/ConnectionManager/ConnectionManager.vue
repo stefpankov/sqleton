@@ -2,7 +2,7 @@
   <CreateConnection
     v-if="show_create_connection"
     :disable="disable"
-    @connect="$listeners['connect']"
+    @connect="requestConnect"
     @cancel="show_create_connection = false"
   />
   <div class="card-group" v-else>
@@ -50,6 +50,7 @@
 
 <script>
 import swal from 'sweetalert'
+import { mapState, mapActions } from 'vuex'
 import Card from '../Layout/Card'
 import CreateConnection from './CreateConnection'
 
@@ -59,11 +60,6 @@ export default {
   components: {
     Card,
     CreateConnection
-  },
-
-  props: {
-    disable: Boolean,
-    connections: Array
   },
 
   mounted () {
@@ -76,7 +72,18 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState({
+      connections: 'saved_connections',
+      disable: 'loading'
+    })
+  },
+
   methods: {
+    ...mapActions([
+      'request'
+    ]),
+
     connect (connection) {
       swal({
         title: 'Connection password',
@@ -90,12 +97,16 @@ export default {
       })
         .then((password) => {
           connection.password = password
-          this.$emit('connect', connection)
+          this.requestConnect(connection)
         })
     },
 
+    requestConnect (connection) {
+      this.request({ channel: 'connect-request', payload: connection })
+    },
+
     deleteConnection (index) {
-      this.$emit('delete-connection', index)
+      this.request({ channel: 'delete-connection-request', payload: index })
     }
   }
 }
