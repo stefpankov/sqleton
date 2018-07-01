@@ -27,7 +27,7 @@ export default {
     dispatch('requestSync', { channel: 'get-connections-request' })
       .then(response => {
         commit('SET_SAVED_CONNECTIONS', response)
-        commit('INITIALIZED', true)
+        commit('SET_INITIALIZED', true)
       })
   },
 

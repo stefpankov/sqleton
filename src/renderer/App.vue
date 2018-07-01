@@ -2,11 +2,7 @@
   <div id="app-container" class="window" v-if="initialized">
     <LoadingIndicator v-if="loading" />
 
-    <Toolbar
-      :is-connected="is_connected"
-      @back="request('disconnect-request')"
-      @refresh="refreshQueryResults"
-    />
+    <Toolbar />
 
     <WindowContent v-if="!is_connected">
       <ConnectionManager
