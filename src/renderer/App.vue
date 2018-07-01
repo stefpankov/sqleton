@@ -12,16 +12,9 @@
       <PaneGroup>
         <Sidebar />
 
-        <ResultsListing
-          :databases="databases"
-          :tables="tables"
-          :query-results="query_results"
-          @request-table-data="requestTableData"
-          @remove-query="removeQueryResult"
-          @active-query-result-changed="changeSelectedTable"
-        />
+        <ResultsListing />
       </PaneGroup>
-    </WindowContent> -->
+    </WindowContent>
   </div>
   <div id="app-container" class="window" v-else>
     <LoadingIndicator />
