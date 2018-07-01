@@ -1,35 +1,7 @@
-import swal from 'sweetalert'
+import errorModal from '../utils/error-modal'
+import queryResultExists from '../utils/query-result-exists'
 import requestUtils from '../ipc/request-utils'
 import channels from '../ipc/channels'
-
-/**
- * Create a sweetalert error modal with a message from an error object.
- *
- * @param {Object} error
- */
-const errorModal = function (error) {
-  swal({
-    title: 'Error',
-    text: error.message,
-    button: { text: 'Close', className: 'btn btn-primary' }
-  })
-}
-
-/**
- * Check whether a table already has results for a specific type of query.
- *
- * @param {Array} query_results
- * @param {String} query_type
- * @param {String} table_name
- *
- * @returns {Boolean}
- */
-const queryResultExists = function (query_results, query_type, table_name) {
-  return query_results
-    .findIndex(query_result => {
-      return query_result.type === query_type && query_result.table === table_name
-    }) > -1
-}
 
 export default {
   ...requestUtils,

@@ -51,32 +51,15 @@ export default {
   computed: {
     ...mapState([
       'initialized',
-      'saved_connections',
       'is_connected',
-      'databases',
-      'tables',
-      'selected_table',
-      'query_results',
       'loading'
     ])
   },
 
   methods: {
     ...mapActions([
-      'init',
-      'requestTableData',
-      'requestDescribeTable',
-      'refreshQueryResults',
-      'removeQueryResult',
-      'changeSelectedTable'
-    ]),
-    ...mapActions({
-      storeRequest: 'request'
-    }),
-
-    request (channel, payload) {
-      this.storeRequest({ channel, payload })
-    }
+      'init'
+    ])
   },
 
   created () {
