@@ -15,6 +15,22 @@ const errorModal = function (error) {
   })
 }
 
+/**
+ * Check whether a table already has results for a specific type of query.
+ *
+ * @param {Array} query_results
+ * @param {String} query_type
+ * @param {String} table_name
+ *
+ * @returns {Boolean}
+ */
+const queryResultExists = function (query_results, query_type, table_name) {
+  return query_results
+    .findIndex(query_result => {
+      return query_result.type === query_type && query_result.table === table_name
+    }) > -1
+}
+
 export default {
   ...requestUtils,
 
@@ -143,10 +159,10 @@ export default {
    *
    * @param {String} table_name
    */
-  requestDescribeTable({ commit, dispatch }, table_name) {
+  requestDescribeTable({ state, commit, dispatch }, table_name) {
     commit('SET_SELECTED_TABLE', table_name)
 
-    if (!this.queryResultExists({ query_type: 'DESCRIBE', table_name })) {
+    if (!queryResultExists(state.query_results, 'DESCRIBE', table_name)) {
       dispatch('request', { channel: 'describe-table-request', payload: table_name })
     }
   },
@@ -171,20 +187,5 @@ export default {
         offset: query.offset
       })
     })
-  },
-
-  /**
-   * Check whether table already has results for a specific type of query.
-   *
-   * @param {String} query_type
-   * @param {String} table_name
-   *
-   * @returns {Boolean}
-   */
-  queryResultExists({ state }, { query_type, table_name }) {
-    return state.query_results
-      .findIndex(query_result => {
-        return query_result.type === query_type && query_result.table === table_name
-      }) > -1
-  },
+  }
 }

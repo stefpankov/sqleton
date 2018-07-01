@@ -10,11 +10,7 @@
 
     <WindowContent v-else>
       <PaneGroup>
-        <Sidebar v-bind="{ databases, tables, activeTable: selected_table }"
-          @request-tables="request('tables-request', $event)"
-          @request-table-data="requestTableData"
-          @request-describe-table="requestDescribeTable"
-        />
+        <Sidebar />
 
         <ResultsListing
           :databases="databases"
