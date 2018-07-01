@@ -7,8 +7,14 @@ export default {
    * @param {String} channel ipcMain channel
    * @param {any} payload Any data that the channel expects
    */
-  request (channel, payload) {
+  request ({ commit }, { channel, payload }) {
+    if (channel === undefined) {
+      throw '[request] The channel param is required.'
+    }
+
     ipcRenderer.send(channel, payload)
+
+    commit('SET_LOADING', true)
   },
 
   /**
@@ -17,7 +23,7 @@ export default {
    * @param {String} channel ipcMain channel
    * @param {any} payload Any data that the channel expects
    */
-  requestSync (channel, payload) {
+  requestSync (context, { channel, payload }) {
     return ipcRenderer.sendSync(`${channel}-sync`, payload)
   },
 
@@ -27,9 +33,9 @@ export default {
    * @param {String} channel
    * @param {Function} callback
    */
-  subscribe (channel, callback, errorCallback) {
+  subscribe ({ dispatch }, { channel, callback, errorCallback }) {
     ipcRenderer.on(channel, (event, response) => {
-      this.handleResponse(response, callback, errorCallback)
+      dispatch('handleResponse', { response, callback, errorCallback })
     })
   },
 
@@ -40,11 +46,11 @@ export default {
    * @param {Function} callback
    * @param {Function} errorCallback
    */
-  handleResponse (response, callback, errorCallback) {
+  handleResponse ({ dispatch }, { response, callback, errorCallback }) {
     if (response.success) {
-      callback(response)
+      dispatch(callback, response)
     } else {
-      errorCallback(response)
+      dispatch(errorCallback, response)
     }
   },
 
@@ -59,9 +65,13 @@ export default {
    *
    * @param {Object} channels
    */
-  subscribeToChannels(channels) {
+  subscribeToChannels({ dispatch }, channels) {
     channels.forEach(channel => {
-      this.subscribe(channel.name, channel.callback, channel.errorCallback)
+      dispatch('subscribe', {
+        channel: channel.name,
+        callback: channel.callback,
+        errorCallback: channel.errorCallback
+      })
     })
   }
 }

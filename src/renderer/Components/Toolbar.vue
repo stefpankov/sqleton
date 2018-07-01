@@ -1,14 +1,14 @@
 <template>
   <header class="toolbar toolbar-header">
     <div class="toolbar-actions">
-      <div class="btn-group" v-if="isConnected">
+      <div class="btn-group" v-if="is_connected">
         <button class="btn btn-default" title="Back to connections"
-          @click="$emit('back')"
+          @click="requestDisconnect"
         >
           <span class="icon icon-left"></span>
         </button>
         <button class="btn btn-default" title="Refresh table data"
-          @click="$emit('refresh')"
+          @click="refreshQueryResults"
         >
           <span class="icon icon-cw"></span>
         </button>
@@ -18,11 +18,26 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'Toolbar',
 
-  props: {
-    isConnected: Boolean
+  computed: {
+    ...mapState([
+      'is_connected'
+    ])
+  },
+
+  methods: {
+    ...mapActions([
+      'request',
+      'refreshQueryResults'
+    ]),
+
+    requestDisconnect () {
+      this.request({ channel: 'disconnect-request' })
+    }
   }
 }
 </script>

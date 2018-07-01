@@ -1,9 +1,9 @@
 <template>
   <Pane>
-    <div class="tab-group" v-if="queryResults.length > 0">
+    <div class="tab-group" v-if="query_results.length > 0">
       <div class="tab-item"
         :class="{ active: index === active_tab }"
-        v-for="(query, index) in queryResults"
+        v-for="(query, index) in query_results"
         :key="index + query.table"
         @click="showTab(index)"
       >
@@ -12,11 +12,11 @@
       </div>
     </div>
 
-    <div class="results-content" v-if="queryResults.length > 0">
+    <div class="results-content" v-if="query_results.length > 0">
       <Results
         v-bind="{
-          fields: queryResults[active_tab].fields,
-          results: queryResults[active_tab].results
+          fields: query_results[active_tab].fields,
+          results: query_results[active_tab].results
         }"
       />
 
@@ -43,6 +43,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 import Pane from '../Layout/Pane'
 import Results from './Results'
 import Pagination from './Pagination'
@@ -54,12 +55,6 @@ export default {
     Pane,
     Results,
     Pagination
-  },
-
-  props: {
-    databases: Array,
-    tables: Array,
-    queryResults: Array
   },
 
   data () {
@@ -79,7 +74,7 @@ export default {
      *
      * @param {Array} data The query results data
      */
-    queryResults (data) {
+    query_results (data) {
       const old_count = this.result_count
 
       if (old_count < data.length) {
@@ -106,22 +101,28 @@ export default {
      * @param {Number} value
      */
     active_tab (query_result_index) {
-      const result = this.queryResults[query_result_index]
+      const result = this.query_results[query_result_index]
 
       if (result) {
-        this.$emit('active-query-result-changed', result.table)
+        this.changeSelectedTable(result.table)
       }
     }
   },
 
   computed: {
+    ...mapState([
+      'query_results',
+      'databases',
+      'tables'
+    ]),
+
     /**
      * The query results that are currently shown in the active tab.
      *
      * @returns {Object}
      */
     active_query () {
-      if (this.queryResults.length > 0) return this.queryResults[this.active_tab]
+      if (this.query_results.length > 0) return this.query_results[this.active_tab]
 
       return {}
     },
@@ -132,7 +133,7 @@ export default {
      * @returns {String}
      */
     active_table () {
-      if (this.queryResults.length > 0) return this.active_query.table
+      if (this.query_results.length > 0) return this.active_query.table
 
       return ''
     },
@@ -157,6 +158,14 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      requestTableDataAction: 'requestTableData'
+    }),
+    ...mapActions([
+      'removeQueryResult',
+      'changeSelectedTable'
+    ]),
+
     /**
      * Change the active tab.
      *
@@ -173,7 +182,7 @@ export default {
      * @param {Number} index
      */
     closeTab (index) {
-      this.$emit('remove-query', index)
+      this.removeQueryResult(index)
     },
 
     /**
@@ -204,7 +213,7 @@ export default {
      * @param {Number} page
      */
     requestTableData (table, limit = 10 , page = 1) {
-      this.$emit('request-table-data', {
+      this.requestTableDataAction({
         table,
         limit,
         offset: (page - 1) * limit

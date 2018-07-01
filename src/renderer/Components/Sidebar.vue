@@ -20,13 +20,13 @@
       <nav class="nav-group">
         <h5 class="nav-group-title">Tables</h5>
         <a v-for="table in filtered_tables" class="nav-group-item"
-          :class="{ active: table === activeTable }"
+          :class="{ active: table === selected_table }"
           :key="table"
           :title="`Select ${table}`"
           @click="selectTable(table)"
         >
           <span class="icon icon-search" :title="`Describe ${table}`"
-            @click.stop="$emit('request-describe-table', table)"
+            @click.stop="requestDescribeTable(table)"
           ></span>
           {{ table }}
         </a>
@@ -36,14 +36,10 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'Sidebar',
-
-  props: {
-    databases: Array,
-    tables: Array,
-    activeTable: String
-  },
 
   data () {
     return {
@@ -57,6 +53,12 @@ export default {
   },
 
   computed: {
+    ...mapState([
+      'databases',
+      'tables',
+      'selected_table'
+    ]),
+
     filtered_tables () {
       if (this.table_filter) {
         return this.tables.filter(table => table.includes(this.table_filter))
@@ -67,14 +69,23 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'request',
+      'requestTableData',
+      'requestDescribeTable'
+    ]),
+
     requestTables () {
       if (this.selected_database !== null) {
-        this.$emit('request-tables', this.databases[this.selected_database])
+        this.request({
+          channel: 'tables-request',
+          payload: this.databases[this.selected_database]
+        })
       }
     },
 
     selectTable (table) {
-      this.$emit('request-table-data', { table })
+      this.requestTableData({ table })
     }
   }
 }
