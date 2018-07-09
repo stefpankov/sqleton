@@ -2,7 +2,7 @@ import path from 'path'
 import { formatUrl } from 'url'
 import { app, BrowserWindow, Menu } from 'electron'
 import settings from 'electron-settings'
-import ReplyProvider from './Ipc/ReplyProvider'
+import ReplyProvider from './ipc/reply-provider'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 

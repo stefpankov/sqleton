@@ -1,4 +1,4 @@
-import { deleteConnection } from '../../Settings/SettingsManager'
+import { deleteConnection } from '../../settings/settings-manager'
 
 export default {
   handle (event, connection_index) {

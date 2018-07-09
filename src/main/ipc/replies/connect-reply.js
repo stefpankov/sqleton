@@ -1,5 +1,5 @@
-import connection from '../../Database/Connection'
-import { saveConnectionIfNotExists } from '../../Settings/SettingsManager'
+import connection from '../../database/connection'
+import { saveConnectionIfNotExists } from '../../settings/settings-manager'
 
 export default {
   handle (event, credentials) {

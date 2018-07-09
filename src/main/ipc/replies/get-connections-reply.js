@@ -1,4 +1,4 @@
-import { getSavedConnections } from '../../Settings/SettingsManager'
+import { getSavedConnections } from '../../settings/settings-manager'
 
 export default {
   handle (event) {

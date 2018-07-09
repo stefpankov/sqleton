@@ -1,12 +1,12 @@
 import { ipcMain } from 'electron'
-import ConnectReply from './Replies/ConnectReply'
-import GetConnectionsReply from './Replies/GetConnectionsReply'
-import DeleteConnectionReply from './Replies/DeleteConnectionReply'
-import DisconnectReply from './Replies/DisconnectReply'
-import DatabasesReply from './Replies/DatabasesReply'
-import TablesReply from './Replies/TablesReply'
-import TableDataReply from './Replies/TableDataReply'
-import DescribeTableReply from './Replies/DescribeTableReply'
+import ConnectReply from './replies/connect-reply'
+import GetConnectionsReply from './replies/get-connections-reply'
+import DeleteConnectionReply from './replies/delete-connection-reply'
+import DisconnectReply from './replies/disconnect-reply'
+import DatabasesReply from './replies/databases-reply'
+import TablesReply from './replies/tables-reply'
+import TableDataReply from './replies/table-data-reply'
+import DescribeTableReply from './replies/describe-table-reply'
 
 /**
  * Define which request channels gets handled by which function.

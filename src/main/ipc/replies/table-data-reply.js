@@ -1,4 +1,4 @@
-import connection from '../../Database/Connection'
+import connection from '../../database/connection'
 
 export default {
   handle (event, { table, limit, offset }) {
