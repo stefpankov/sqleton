@@ -44,7 +44,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import Pane from '../Layout/Pane'
+import Pane from '../../layout/Pane'
 import Results from './Results'
 import Pagination from './Pagination'
 

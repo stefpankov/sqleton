@@ -51,7 +51,7 @@
 <script>
 import swal from 'sweetalert'
 import { mapState, mapActions } from 'vuex'
-import Card from '../Layout/Card'
+import Card from '../../widgets/Card'
 import CreateConnection from './CreateConnection'
 
 export default {

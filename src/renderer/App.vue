@@ -25,15 +25,15 @@
 import { mapState, mapActions } from 'vuex'
 // import swal from 'sweetalert'
 
-import WindowContent from './Views/Layout/WindowContent'
-import PaneGroup from './Views/Layout/PaneGroup'
+import WindowContent from './components/layout/WindowContent'
+import PaneGroup from './components/layout/PaneGroup'
 
-import LoadingIndicator from './Components/LoadingIndicator'
-import Toolbar from './Components/Toolbar'
-import Sidebar from './Components/Sidebar'
+import LoadingIndicator from './components/widgets/LoadingIndicator'
+import Toolbar from './components/Toolbar'
+import Sidebar from './components/Sidebar'
 
-import ConnectionManager from './Views/ConnectionManager/ConnectionManager'
-import ResultsListing from './Views/ResultsListing/ResultsListing'
+import ConnectionManager from './components/views/ConnectionManager/ConnectionManager'
+import ResultsListing from './components/views/ResultsListing/ResultsListing'
 
 export default {
   name: 'App',
