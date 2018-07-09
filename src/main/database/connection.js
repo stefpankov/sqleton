@@ -156,5 +156,19 @@ export default {
     const query = mysql.format('DESCRIBE ??', [table])
 
     return this.executeQuery(query)
+  },
+
+  /**
+   * Prepare and execute an insert query.
+   *
+   * @param {String} table Table name
+   * @param {Object} data key:value pairs of data to be inserted
+   *
+   * @returns {Promise}
+   */
+  insert (table, data) {
+    const query = mysql.format('INSERT INTO ?? SET ?', [table, data])
+
+    return this.executeQuery(query)
   }
 }

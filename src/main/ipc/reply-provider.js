@@ -7,6 +7,7 @@ import DatabasesReply from './replies/databases-reply'
 import TablesReply from './replies/tables-reply'
 import TableDataReply from './replies/table-data-reply'
 import DescribeTableReply from './replies/describe-table-reply'
+import NewRecordReply from  './replies/new-record-reply'
 
 /**
  * Define which request channels gets handled by which function.
@@ -21,6 +22,7 @@ let channels = {
   'tables-request': TablesReply.handle,
   'table-data-request': TableDataReply.handle,
   'describe-table-request': DescribeTableReply.handle,
+  'new-record-request': NewRecordReply.handle
 }
 
 export default {
