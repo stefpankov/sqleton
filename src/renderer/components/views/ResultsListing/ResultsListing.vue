@@ -12,7 +12,15 @@
       </div>
     </div>
 
-    <div class="results-content" v-if="query_results.length > 0">
+    <div class="new-record" v-if="show_new_record_form">
+      <NewRecordForm
+        :columns="active_query_columns"
+        @cancel="show_new_record_form = false"
+        @submit="saveNewRecord"
+      />
+    </div>
+
+    <div class="results-content" v-else-if="query_results.length > 0">
       <Results
         v-bind="{
           fields: query_results[active_tab].fields,
@@ -47,6 +55,7 @@ import { mapState, mapActions } from 'vuex'
 import Pane from '../../layout/Pane'
 import Results from './Results'
 import Pagination from './Pagination'
+import NewRecordForm from './NewRecordForm'
 
 export default {
   name: 'ResultsListing',
@@ -54,14 +63,16 @@ export default {
   components: {
     Pane,
     Results,
-    Pagination
+    Pagination,
+    NewRecordForm
   },
 
   data () {
     return {
       result_count: 0,
       active_tab: 0,
-      items_per_page: 10
+      items_per_page: 10,
+      show_new_record_form: false
     }
   },
 
@@ -127,6 +138,14 @@ export default {
       return {}
     },
 
+    active_query_columns () {
+      if (Array.isArray(this.active_query.fields)) {
+        return this.active_query.fields.map(field => ({ name: field.name, type: field.type }))
+      }
+
+      return []
+    },
+
     /**
      * The table name for the active query results.
      *
@@ -163,7 +182,8 @@ export default {
     }),
     ...mapActions([
       'removeQueryResult',
-      'changeSelectedTable'
+      'changeSelectedTable',
+      'newRecord'
     ]),
 
     /**
@@ -218,6 +238,23 @@ export default {
         limit,
         offset: (page - 1) * limit
       })
+    },
+
+    saveNewRecord (data) {
+      const prepared_data = Object.keys(data).reduce((acc, field) => {
+        if (data[field] !== '') {
+          acc[field] = data[field]
+        }
+
+        return acc
+      }, {})
+
+      this.newRecord({
+        table: this.active_table,
+        data: prepared_data
+      })
+
+      this.show_new_record_form = false
     }
   }
 }
