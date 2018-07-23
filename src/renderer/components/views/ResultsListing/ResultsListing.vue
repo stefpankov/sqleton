@@ -70,8 +70,7 @@ export default {
   data () {
     return {
       result_count: 0,
-      active_tab: 0,
-      items_per_page: 10
+      active_tab: 0
     }
   },
 
@@ -99,15 +98,6 @@ export default {
     },
 
     /**
-     * When the items per page filter changes, request the table data again.
-     *
-     * @param {Number} value
-     */
-    items_per_page (value) {
-      this.requestTableData(undefined, value, 1)
-    },
-
-    /**
      * @param {Number} value
      */
     active_tab (query_result_index) {
@@ -126,6 +116,20 @@ export default {
       'tables',
       'show_new_record_form'
     ]),
+
+    items_per_page: {
+      get () {
+        return this.active_query.limit
+      },
+      /**
+       * When the items per page filter changes, request the table data again.
+       *
+       * @param {Number} value
+       */
+      set (value) {
+        this.requestTableData(undefined, value, 1)
+      }
+    },
 
     /**
      * The query results that are currently shown in the active tab.
