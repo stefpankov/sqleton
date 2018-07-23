@@ -12,7 +12,15 @@
       </div>
     </div>
 
-    <div class="results-content" v-if="query_results.length > 0">
+    <div class="new-record" v-if="show_new_record_form">
+      <NewRecordForm
+        :columns="active_query_columns"
+        @cancel="hideNewRecordForm"
+        @submit="saveNewRecord"
+      />
+    </div>
+
+    <div class="results-content" v-else-if="query_results.length > 0">
       <Results
         v-bind="{
           fields: query_results[active_tab].fields,
@@ -47,6 +55,7 @@ import { mapState, mapActions } from 'vuex'
 import Pane from '../../layout/Pane'
 import Results from './Results'
 import Pagination from './Pagination'
+import NewRecordForm from './NewRecordForm'
 
 export default {
   name: 'ResultsListing',
@@ -54,7 +63,8 @@ export default {
   components: {
     Pane,
     Results,
-    Pagination
+    Pagination,
+    NewRecordForm
   },
 
   data () {
@@ -113,7 +123,8 @@ export default {
     ...mapState([
       'query_results',
       'databases',
-      'tables'
+      'tables',
+      'show_new_record_form'
     ]),
 
     /**
@@ -125,6 +136,14 @@ export default {
       if (this.query_results.length > 0) return this.query_results[this.active_tab]
 
       return {}
+    },
+
+    active_query_columns () {
+      if (Array.isArray(this.active_query.fields)) {
+        return this.active_query.fields.map(field => ({ name: field.name, type: field.type }))
+      }
+
+      return []
     },
 
     /**
@@ -163,7 +182,9 @@ export default {
     }),
     ...mapActions([
       'removeQueryResult',
-      'changeSelectedTable'
+      'changeSelectedTable',
+      'hideNewRecordForm',
+      'newRecord'
     ]),
 
     /**
@@ -217,6 +238,26 @@ export default {
         table,
         limit,
         offset: (page - 1) * limit
+      })
+    },
+
+    /**
+     * Prepare the data field by field and send to the newRecord action.
+     *
+     * @param {Object} data
+     */
+    saveNewRecord (data) {
+      const prepared_data = Object.keys(data).reduce((acc, field) => {
+        if (data[field] !== '') {
+          acc[field] = data[field]
+        }
+
+        return acc
+      }, {})
+
+      this.newRecord({
+        table: this.active_table,
+        data: prepared_data
       })
     }
   }

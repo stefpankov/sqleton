@@ -38,5 +38,15 @@ export default [
     name: 'describe-table-response',
     callback: 'handleDescribeTable',
     errorCallback: 'handleError'
+  },
+  {
+    name: 'new-record-response',
+    callback: 'handleNewRecord',
+    errorCallback: 'handleError'
+  },
+  {
+    name: 'update-record-response',
+    callback: 'handleUpdateRecord',
+    errorCallback: 'handleError'
   }
 ]

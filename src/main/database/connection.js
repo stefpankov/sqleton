@@ -3,6 +3,15 @@ import mysql from 'mysql'
 const extractCount = (response) => response['results'][0]['count(1)']
 
 export default {
+  /**
+   * Create a connection to a database for the given credentials.
+   * If a connection already exists, disconnect and create a new connection.
+   *
+   * When calling the callback, we can pass in an argument to make it handle an error.
+   *
+   * @param {Object} credentials
+   * @param {Function} callback
+   */
   createConnection (credentials, callback) {
     this.database = credentials.database
     this.credentials = credentials
@@ -21,8 +30,7 @@ export default {
   },
 
   /**
-   * Connect to a database by using a previously created connection.
-   * Used as a handshake to check connectivity.
+   * A wrapper method for the createConnection method that returns a Promise.
    *
    * @returns {Promise}
    */
@@ -31,9 +39,9 @@ export default {
       this.createConnection(credentials, function (error) {
           if (error) {
             console.error('connect', error)
-            reject({ success: false, message: error.message || error.sqlMessage || error.code, })
+            reject({ success: false, message: error.message || error.sqlMessage || error.code })
           } else {
-            resolve({ success: true, message: 'Successfully connected.', })
+            resolve({ success: true, message: 'Successfully connected.' })
           }
       })
     })
@@ -154,6 +162,20 @@ export default {
    */
   describeTable (table) {
     const query = mysql.format('DESCRIBE ??', [table])
+
+    return this.executeQuery(query)
+  },
+
+  /**
+   * Prepare and execute an insert query.
+   *
+   * @param {String} table Table name
+   * @param {Object} data key:value pairs of data to be inserted
+   *
+   * @returns {Promise}
+   */
+  insert (table, data) {
+    const query = mysql.format('INSERT INTO ?? SET ?', [table, data])
 
     return this.executeQuery(query)
   }

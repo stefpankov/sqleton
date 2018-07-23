@@ -149,15 +149,65 @@ export default {
   },
 
   /**
-   * Send a new table data request for each query result to refresh them.
+   * Send a new table data request for the specified table,
+   * or if no table was specified, send a request for each query result to refresh them.
    */
-  refreshQueryResults ({ state, dispatch }) {
-    state.query_results.forEach(query => {
-      dispatch('requestTableData', {
-        table: query.table,
-        limit: query.limit,
-        offset: query.offset
+  refreshQueryResults ({ state, dispatch }, table = null) {
+    if (table !== null) {
+      const index = state.query_results.findIndex(qr => qr.table === table)
+
+      if (index > -1) {
+        const query = state.query_results[index]
+        dispatch('requestTableData', {
+          table: query.table,
+          limit: query.limit,
+          offset: query.offset
+        })
+      }
+    } else {
+      state.query_results.forEach(query => {
+        dispatch('requestTableData', {
+          table: query.table,
+          limit: query.limit,
+          offset: query.offset
+        })
       })
+    }
+  },
+
+  showNewRecordForm ({ commit }) {
+    commit('SHOW_NEW_RECORD_FORM')
+  },
+
+  hideNewRecordForm ({ commit }) {
+    commit('HIDE_NEW_RECORD_FORM')
+  },
+
+  /**
+   * Dispatch a new record request.
+   * Data should be an object whose key:value pairs correspond to column_name: column_value.
+   *
+   * @param {String} table Table name
+   * @param {Object} data
+   */
+  newRecord ({ dispatch }, { table, data }) {
+    dispatch('request', {
+      channel: 'new-record-request',
+      payload: {
+        table,
+        data
+      }
     })
+  },
+
+  /**
+   * Request a refresh of query results after a new record has been inserted.
+   *
+   * @todo Refactor this to just refresh the table where we added a new record
+   */
+  handleNewRecord ({ dispatch, commit }, response) {
+    dispatch('refreshQueryResults', response.table)
+
+    commit('HIDE_NEW_RECORD_FORM')
   }
 }

@@ -58,7 +58,8 @@ export default {
 
   methods: {
     ...mapActions([
-      'init'
+      'init',
+      'newRecord'
     ])
   },
 
