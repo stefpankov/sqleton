@@ -15,7 +15,7 @@
     <div class="new-record" v-if="show_new_record_form">
       <NewRecordForm
         :columns="active_query_columns"
-        @cancel="show_new_record_form = false"
+        @cancel="hideNewRecordForm"
         @submit="saveNewRecord"
       />
     </div>
@@ -71,8 +71,7 @@ export default {
     return {
       result_count: 0,
       active_tab: 0,
-      items_per_page: 10,
-      show_new_record_form: false
+      items_per_page: 10
     }
   },
 
@@ -124,7 +123,8 @@ export default {
     ...mapState([
       'query_results',
       'databases',
-      'tables'
+      'tables',
+      'show_new_record_form'
     ]),
 
     /**
@@ -183,6 +183,7 @@ export default {
     ...mapActions([
       'removeQueryResult',
       'changeSelectedTable',
+      'hideNewRecordForm',
       'newRecord'
     ]),
 
@@ -240,6 +241,11 @@ export default {
       })
     },
 
+    /**
+     * Prepare the data field by field and send to the newRecord action.
+     *
+     * @param {Object} data
+     */
     saveNewRecord (data) {
       const prepared_data = Object.keys(data).reduce((acc, field) => {
         if (data[field] !== '') {
@@ -253,8 +259,6 @@ export default {
         table: this.active_table,
         data: prepared_data
       })
-
-      this.show_new_record_form = false
     }
   }
 }

@@ -15,7 +15,8 @@ export default new Vuex.Store({
     tables: [],
     selected_table: '',
     query_results: [],
-    loading: false
+    loading: false,
+    show_new_record_form: false
   },
   mutations,
   actions

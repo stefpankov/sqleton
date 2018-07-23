@@ -175,6 +175,14 @@ export default {
     }
   },
 
+  showNewRecordForm ({ commit }) {
+    commit('SHOW_NEW_RECORD_FORM')
+  },
+
+  hideNewRecordForm ({ commit }) {
+    commit('HIDE_NEW_RECORD_FORM')
+  },
+
   /**
    * Dispatch a new record request.
    * Data should be an object whose key:value pairs correspond to column_name: column_value.
@@ -197,7 +205,9 @@ export default {
    *
    * @todo Refactor this to just refresh the table where we added a new record
    */
-  handleNewRecord ({ dispatch }, response) {
+  handleNewRecord ({ dispatch, commit }, response) {
     dispatch('refreshQueryResults', response.table)
+
+    commit('HIDE_NEW_RECORD_FORM')
   }
 }

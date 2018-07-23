@@ -120,5 +120,23 @@ export default {
    */
   SET_TABLES (state, tables) {
     state.tables = tables
-  }
+  },
+
+  /**
+   * Set the show new records form flag to true.
+   *
+   * @param {*} state
+   */
+  SHOW_NEW_RECORD_FORM (state) {
+    state.show_new_record_form = true
+  },
+
+  /**
+   * Set the show new records form flag to false.
+   *
+   * @param {*} state
+   */
+  HIDE_NEW_RECORD_FORM (state) {
+    state.show_new_record_form = false
+  },
 }

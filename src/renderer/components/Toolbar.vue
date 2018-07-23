@@ -13,6 +13,15 @@
           <span class="icon icon-cw"></span>
         </button>
       </div>
+
+      <div class="btn-group" v-if="is_connected">
+        <button class="btn btn-default" title="New item"
+          @click="showNewRecordForm"
+        >
+          <span class="icon icon-plus-squared icon-text"></span>
+          New item
+        </button>
+      </div>
     </div>
   </header>
 </template>
@@ -32,7 +41,8 @@ export default {
   methods: {
     ...mapActions([
       'request',
-      'refreshQueryResults'
+      'refreshQueryResults',
+      'showNewRecordForm'
     ]),
 
     requestDisconnect () {
