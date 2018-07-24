@@ -178,5 +178,11 @@ export default {
     const query = mysql.format('INSERT INTO ?? SET ?', [table, data])
 
     return this.executeQuery(query)
+  },
+
+  delete (table, data) {
+    const query = mysql.format('DELETE FROM ?? WHERE ?', [table, data])
+
+    return this.executeQuery(query)
   }
 }

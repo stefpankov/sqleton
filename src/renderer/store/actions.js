@@ -209,5 +209,14 @@ export default {
     dispatch('refreshQueryResults', response.table)
 
     commit('HIDE_NEW_RECORD_FORM')
+  },
+
+  deleteRecord ({ dispatch }, { table_name }) {
+    const table_info = dispatch('requestSync', {
+      channel: 'describe-table-request-sync',
+      payload: table_name
+    })
+
+    console.log(table_info)
   }
 }

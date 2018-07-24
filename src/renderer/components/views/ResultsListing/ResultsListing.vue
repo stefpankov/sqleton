@@ -22,10 +22,14 @@
 
     <div class="results-content" v-else-if="query_results.length > 0">
       <Results
+        v-for="(query, index) in query_results"
+        :key="index + query.table"
         v-bind="{
-          fields: query_results[active_tab].fields,
-          results: query_results[active_tab].results
+          fields: query.fields,
+          results: query.results
         }"
+        v-show="index === active_tab"
+        @delete="deleteRecordsByIndex"
       />
 
       <div class="filters" v-if="active_query.type === 'SELECT'">
@@ -188,7 +192,8 @@ export default {
       'removeQueryResult',
       'changeSelectedTable',
       'hideNewRecordForm',
-      'newRecord'
+      'newRecord',
+      'deleteRecord'
     ]),
 
     /**
@@ -263,6 +268,12 @@ export default {
         table: this.active_table,
         data: prepared_data
       })
+    },
+
+    deleteRecordsByIndex (indices) {
+      const to_delete = indices.map(index => Object.create(this.active_query.results[index]))
+
+      this.deleteRecord({ table_name: this.active_table, record: to_delete[0] })
     }
   }
 }
