@@ -4,6 +4,7 @@ export default {
   handle (event) {
     return connection.databases()
       .then(response => {
+        console.log(response)
         event.sender.send('databases-response', response)
       })
       .catch(error => {

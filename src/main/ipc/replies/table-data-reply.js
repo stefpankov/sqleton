@@ -5,7 +5,6 @@ export default {
     return connection.getTableData(table, limit, offset)
       .then(response => {
         const data = { ...response, table, limit, offset }
-
         event.sender.send('table-data-response', data)
       })
       .catch(error => {

@@ -12,31 +12,44 @@
         <label>SQL Server:</label>
         <select class="form-control" v-model="credentials.type">
           <option value="mysql">MySQL</option>
+          <option value="sqlite">SQLite</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Host:</label>
-        <input type="text" class="form-control"
-          v-model="credentials.host"
-        >
+      <div v-show="credentials.type==='sqlite'">
+        <div class="form-group">
+          <label>DB File:</label>
+          <input type="text" class="form-control"
+          @click="chooseFile"
+            v-model="credentials.host"
+          >
+        </div>
       </div>
-      <div class="form-group">
-        <label>Port:</label>
-        <input type="text" class="form-control"
-          v-model="credentials.port"
-        >
-      </div>
-      <div class="form-group">
-        <label>Username:</label>
-        <input type="text" class="form-control"
-          v-model="credentials.user"
-        >
-      </div>
-      <div class="form-group">
-        <label>Password:</label>
-        <input type="password" class="form-control"
-          v-model="credentials.password"
-        >
+
+      <div v-show="credentials.type==='mysql'">
+        <div class="form-group">
+          <label>Host:</label>
+          <input type="text" class="form-control"
+            v-model="credentials.host"
+          >
+        </div>
+        <div class="form-group">
+          <label>Port:</label>
+          <input type="text" class="form-control"
+            v-model="credentials.port"
+          >
+        </div>
+        <div class="form-group">
+          <label>Username:</label>
+          <input type="text" class="form-control"
+            v-model="credentials.user"
+          >
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" class="form-control"
+            v-model="credentials.password"
+          >
+        </div>
       </div>
 
       <div class="form-group">
@@ -55,6 +68,7 @@
 </template>
 
 <script>
+const { dialog } = require('electron').remote
 export default {
   name: 'CreateConnection',
 
@@ -79,6 +93,13 @@ export default {
   methods: {
     connect () {
       this.$emit('connect', this.credentials)
+    },
+    chooseFile() {
+      this.credentials.host=dialog.showOpenDialog({ 
+        properties: ['openFile'],
+        filters: [{name:'DB Files',extensions:['db']}, {name:'All Files', extensions:['*']}]
+        })[0]
+
     }
   }
 }
@@ -95,4 +116,3 @@ form {
   margin-top: 40px;
 }
 </style>
-

@@ -1,5 +1,5 @@
 # Sqleton
-> A minimal MySQL client built with [electron](https://electronjs.org/) and [Vue.js](https://vuejs.org/)
+> A minimal MySQL & SQLite client built with [electron](https://electronjs.org/) and [Vue.js](https://vuejs.org/)
 
 ## Project is under construction
 - Current and planned basic features:
@@ -9,6 +9,8 @@
   + [ ] Write and execute queries
   + [ ] Add a new record to a table
   + [ ] Add a new table to a database
+- Changes by @ColinMcNeil
+  * Supports SQLite .db files
 
 ## Development Environment Requirements
 - Node >= 8.9
