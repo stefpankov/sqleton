@@ -1,8 +1,12 @@
 import mysql from 'mysql'
+const sqlite3 = require('sqlite3').verbose()
 
 const extractCount = (response) => response['results'][0]['count(1)']
 
 export default {
+  isSQLite() {
+    return this.credentials.type === 'sqlite'
+  },
   /**
    * Create a connection to a database for the given credentials.
    * If a connection already exists, disconnect and create a new connection.
@@ -12,7 +16,7 @@ export default {
    * @param {Object} credentials
    * @param {Function} callback
    */
-  createConnection (credentials, callback) {
+  createConnection(credentials, callback) {
     this.database = credentials.database
     this.credentials = credentials
 
@@ -22,6 +26,11 @@ export default {
       } catch (error) {
         return callback(error)
       }
+    }
+    if (this.isSQLite()) {
+      this.connection = new sqlite3.Database(this.credentials.host)
+      this.database='default'
+      return this.connection.serialize(callback)
     }
 
     this.connection = mysql.createConnection(credentials)
@@ -47,14 +56,18 @@ export default {
     })
   },
 
-  disconnect () {
-    this.connection.end(function (error) {
-      if (error) {
-        console.error('disconnect', error)
-        throw error
-      }
-    })
-
+  disconnect() {
+    if (this.isSQLite() && this.connection.close) {
+      this.connection.close()
+    }
+    else if(this.connection.end){
+      this.connection.end(function (error) {
+        if (error) {
+          console.error('disconnect', error)
+          throw error
+        }
+      })
+    }
     this.connection = undefined
   },
 
@@ -64,7 +77,20 @@ export default {
    * @param {String} query Prepared query
    * @returns {Promise}
    */
-  executeQuery (query) {
+  executeQuery(query) {
+    if (this.isSQLite()) {
+      return new Promise((resolve, reject) => {
+        this.connection.all(query, function (error, results) {
+          if (error) {
+            reject({ success: false, message: error })
+          } else {
+            const fieldsArr = Object.keys(results[0])
+            const fields = fieldsArr.map(fieldStr=>({name:fieldStr}))
+            resolve({ success: true, results, fields })
+          }
+        })
+      })
+    }
     return new Promise((resolve, reject) => {
       this.connection.query(query, function (error, results, fields) {
         if (error) {
@@ -83,8 +109,9 @@ export default {
    *
    * @returns {Promise<Number>}
    */
-  count (table) {
+  count(table) {
     const query = mysql.format('SELECT count(1) FROM ??', [table])
+    
 
     return this.executeQuery(query)
       .then(response => extractCount(response))
@@ -95,7 +122,10 @@ export default {
    *
    * @returns {Promise}
    */
-  databases () {
+  databases() {
+    if (this.isSQLite()) return new Promise((resolve) => {
+      resolve({ success: true, results: [{ Database: this.credentials.host }], fields:[{name:'Database'}] })
+    })
     return this.executeQuery('SHOW DATABASES')
   },
 
@@ -104,7 +134,8 @@ export default {
    *
    * @returns {Promise}
    */
-  tables () {
+  tables() {
+    if (this.isSQLite()) return this.executeQuery("select name from sqlite_master where type='table'")
     return this.executeQuery('SHOW TABLES')
   },
 
@@ -114,7 +145,10 @@ export default {
    * @param {String} database Database name
    * @returns {Promise}
    */
-  changeDatabase (database) {
+  changeDatabase(database) {
+    if (this.isSQLite()) return new Promise((resolve) => {
+      resolve({ success: true })
+    })
     return new Promise((resolve, reject) => {
       this.connection.changeUser({ database }, function (error) {
         if (error) {
@@ -132,7 +166,8 @@ export default {
    * @param {String} database Database name
    * @returns {Promise}
    */
-  tablesForDatabase (database) {
+  tablesForDatabase(database) {
+    if(this.isSQLite()) return this.tables()
     return this.changeDatabase(database)
       .then(() => this.tables())
   },
@@ -160,8 +195,11 @@ export default {
    *
    * @returns {Promise}
    */
-  describeTable (table) {
-    const query = mysql.format('DESCRIBE ??', [table])
+  describeTable(table) {
+    let query = mysql.format('DESCRIBE ??', [table])
+    if (this.isSQLite()) {
+      query = '.schema '+ table
+    }
 
     return this.executeQuery(query)
   },

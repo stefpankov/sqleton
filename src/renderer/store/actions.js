@@ -84,8 +84,10 @@ export default {
   handleTables({ commit }, { results, fields }) {
     commit('SET_SELECTED_TABLE', '')
     commit('SET_QUERY_RESULTS', [])
-
-    const tables = results.map(res => res[fields[0].name])
+    let tables = results
+    if(!fields) tables=tables.map(res=> res.name)
+    else
+      tables = tables.map(res => res[fields[0].name])
     commit('SET_TABLES', tables)
 
     commit('SET_LOADING', false)

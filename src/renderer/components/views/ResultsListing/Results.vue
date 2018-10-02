@@ -41,4 +41,3 @@ export default {
   border-bottom: 1px solid #ddd;
 }
 </style>
-
