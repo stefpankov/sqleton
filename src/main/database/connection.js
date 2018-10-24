@@ -24,7 +24,7 @@ export default {
       }
     }
 
-    this.connection = mysql.createConnection(credentials)
+    this.connection = mysql.createConnection({...credentials, dateStrings: true})
 
     return this.connection.connect(callback)
   },
@@ -180,9 +180,32 @@ export default {
     return this.executeQuery(query)
   },
 
-  delete (table, data) {
-    const query = mysql.format('DELETE FROM ?? WHERE ?', [table, data])
+  /**
+   * Prepares and executes a delete query.
+   * In order to do so, it figures out the table's primary keys and prepares the query according to them.
+   *
+   * @param {String} table Table name
+   * @param {Object} record
+   */
+  delete (table, record) {
+    return this.describeTable(table)
+      .then(response => {
+        const primaryKeyColumns = response.results.filter(row => row.Key === 'PRI')
+        const constraints = primaryKeyColumns.reduce((acc, column, index) => {
+          if (index === 0) {
+            return acc + `WHERE ${column.Field} = ?`
+          }
 
-    return this.executeQuery(query)
+          return acc + ` AND ${column.Field} = ?`
+        }, '')
+
+        const prepared_fields = primaryKeyColumns.map((column) => {
+          return record[column.Field]
+        })
+
+        const query = mysql.format('DELETE FROM ?? ' + constraints, [table, ...prepared_fields])
+
+        return this.executeQuery(query)
+      })
   }
 }

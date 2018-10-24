@@ -26,7 +26,8 @@
         :key="index + query.table"
         v-bind="{
           fields: query.fields,
-          results: query.results
+          results: query.results,
+          selectableRows: query.type === 'SELECT'
         }"
         v-show="index === active_tab"
         @delete="deleteRecordsByIndex"
@@ -171,6 +172,10 @@ export default {
      * @returns {Number}
      */
     current_page () {
+      if (this.active_query.offset === undefined) {
+        return null
+      }
+
       return Math.floor(this.active_query.offset / this.active_query.limit) + 1
     },
 
@@ -180,6 +185,10 @@ export default {
      * @returns {Number}
      */
     total_pages () {
+      if (this.active_query.total_results === undefined) {
+        return null
+      }
+
       return Math.ceil(this.active_query.total_results / this.active_query.limit)
     }
   },
@@ -193,7 +202,7 @@ export default {
       'changeSelectedTable',
       'hideNewRecordForm',
       'newRecord',
-      'deleteRecord'
+      'deleteRecords'
     ]),
 
     /**
@@ -270,10 +279,15 @@ export default {
       })
     },
 
+    /**
+     * Figure out which records to delete by provided indices.
+     *
+     * @param {Array} indices
+     */
     deleteRecordsByIndex (indices) {
       const to_delete = indices.map(index => Object.create(this.active_query.results[index]))
 
-      this.deleteRecord({ table_name: this.active_table, record: to_delete[0] })
+      this.deleteRecords({ table_name: this.active_table, records: to_delete })
     }
   }
 }

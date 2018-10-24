@@ -4,13 +4,13 @@
       <table v-if="fields.length > 0" class="table-striped">
         <thead>
           <tr>
-            <th></th>
+            <th v-if="selectableRows"></th>
             <th v-for="field in prepared_fields" :key="field">{{ field }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(row, index) in results" :key="`${index}${row[prepared_fields[0]]}`">
-            <td>
+            <td v-if="selectableRows">
               <input type="checkbox" :id="index" :value="index" v-model="selected_rows">
             </td>
             <td v-for="(field, index) in prepared_fields" :key="`${index}${field}`">
@@ -43,12 +43,22 @@ export default {
 
   props: {
     fields: Array,
-    results: Array
+    results: Array,
+    selectableRows: {
+      type: Boolean,
+      default: true
+    }
   },
 
   data () {
     return {
       selected_rows: []
+    }
+  },
+
+  watch: {
+    results () {
+      this.selected_rows = []
     }
   },
 

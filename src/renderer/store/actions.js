@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import errorModal from '../utils/error-modal'
 import queryResultExists from '../utils/query-result-exists'
 import requestUtils from '../ipc/request-utils'
@@ -203,7 +204,9 @@ export default {
   /**
    * Request a refresh of query results after a new record has been inserted.
    *
-   * @todo Refactor this to just refresh the table where we added a new record
+   * @param {any} dispatch
+   * @param {any} commit
+   * @param {Object} response
    */
   handleNewRecord ({ dispatch, commit }, response) {
     dispatch('refreshQueryResults', response.table)
@@ -211,12 +214,40 @@ export default {
     commit('HIDE_NEW_RECORD_FORM')
   },
 
-  deleteRecord ({ dispatch }, { table_name }) {
-    const table_info = dispatch('requestSync', {
-      channel: 'describe-table-request-sync',
-      payload: table_name
+  /**
+   * Dispath a delete record request.
+   *
+   * @param {any} dispatch
+   * @param {String} table_name
+   * @param {Object} record
+   */
+  deleteRecord ({ dispatch }, { table_name, record }) {
+    let recordClone = Vue.util.extend({}, record)
+    dispatch('request', {
+      channel: 'delete-record-request',
+      payload: { table: table_name, record: recordClone }
     })
+  },
 
-    console.log(table_info)
+  /**
+   * Reqest a refresh of query results after a deleted record.
+   * @param {any} dispatch
+   * @param {Object} response
+   */
+  handleDeleteRecord ({ dispatch }, response) {
+    dispatch('refreshQueryResults', response.table)
+  },
+
+  /**
+   * Delete multiple records.
+   *
+   * @param {any} dispatch
+   * @param {String} table_name
+   * @param {Array} records
+   */
+  deleteRecords ({ dispatch }, { table_name, records }) {
+    records.forEach(record => {
+      dispatch('deleteRecord', { table_name, record })
+    })
   }
 }

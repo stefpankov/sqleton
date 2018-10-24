@@ -48,5 +48,10 @@ export default [
     name: 'update-record-response',
     callback: 'handleUpdateRecord',
     errorCallback: 'handleError'
+  },
+  {
+    name: 'delete-record-response',
+    callback: 'handleDeleteRecord',
+    errorCallback: 'handleError'
   }
 ]
